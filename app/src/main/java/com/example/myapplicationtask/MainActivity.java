@@ -1,19 +1,6 @@
 package com.example.myapplicationtask;
 
 import androidx.appcompat.app.AppCompatActivity;
-<<<<<<< HEAD
-import android.os.Bundle;
-
-public class MainActivity extends AppCompatActivity {
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        //imposta il layout dell'attività con il file xml
-        setContentView(R.layout.activity_main);
-    }
-
-=======
 
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -51,7 +38,4 @@ public class MainActivity extends AppCompatActivity {
         saveInstanceState.putString("textInput2Data", binding.textInputEditText2.getText().toString());
         saveInstanceState.putString("editTextData", binding.editTextDate2.getText().toString());
     }
-
-
->>>>>>> f1172ed (Initial commit)
 }
