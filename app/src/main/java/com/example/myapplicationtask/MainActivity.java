@@ -4,13 +4,17 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toolbar;
 
 import com.example.myapplicationtask.databinding.ActivityMainBinding;
@@ -46,7 +50,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        binding.toolbar.setTitle("My edit task");
+        binding.buttonDate.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                openDialog();
+            }
+        });
+
+        //binding.toolbar.setTitle("My edit task");
         //
         // bar.setTitle("TASK");
 
@@ -87,5 +97,14 @@ public class MainActivity extends AppCompatActivity {
         //saveInstanceState.putString("editTextData", binding.editTextDate2.getText().toString());
     }
 
+    private void openDialog(){
+        DatePickerDialog dialog= new DatePickerDialog(this,  new DatePickerDialog.OnDateSetListener(){
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int day) {
+                binding.textView.setText(String.valueOf(year)+"/"+String.valueOf(month)+"/"+String.valueOf(day));
+            }
+        }, 2024,4,25);
+        dialog.show();
+    }
 
 }

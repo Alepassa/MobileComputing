@@ -123,7 +123,7 @@
 
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/buttonDate"
         android:layout_width="80dp"
         android:layout_height="40dp"
         android:layout_marginTop="4dp"
@@ -138,6 +138,7 @@
         app:layout_constraintTop_toBottomOf="@+id/textInputEditText2"
         app:strokeColor="#FFFFFF"
         app:toggleCheckedStateOnClick="true" />
+
 
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/barrier"
@@ -167,6 +168,16 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_begin="148dp" />
 
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="64dp"
+        android:text="Date"
+        app:layout_constraintBottom_toBottomOf="@+id/buttonDate"
+        app:layout_constraintStart_toEndOf="@+id/textView4"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.946" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
