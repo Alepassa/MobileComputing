@@ -10,6 +10,7 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
+import android.webkit.WebSettings;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
@@ -37,11 +38,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         if (savedInstanceState != null) {
-            String textInput1Data = savedInstanceState.getString("textInput1Data");
-            binding.textInputEditText1.setText(textInput1Data);
-            String textInput2Data = savedInstanceState.getString("textInput2Data");
-            binding.textInputEditText2.setText(textInput2Data);
-            String editTextData = savedInstanceState.getString("editTextData");
+            String description = savedInstanceState.getString("editDescription");
+            binding.editDescription.setText(description);
+            String name = savedInstanceState.getString("editName");
+            binding.editName.setText(name);
+            String date = savedInstanceState.getString("editData");
+            binding.editData.setText(date);
         }
             binding.button1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,10 +65,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void addTask(View v){
-        EditText mShortName =binding.textInputEditText1;
-        EditText mDescription = binding.textInputEditText2;
+        EditText mShortName =binding.editDescription;
+        EditText mDescription = binding.editName;
         //EditText mCreationDate = binding.editTextDate2;
         CheckBox mDone  = binding.checkBox2;
+        TextView mDate = binding.editData;
         String fieldName = Objects.requireNonNull(mShortName.getText()).toString();
         String fieldDescription = Objects.requireNonNull(mDescription.getText()).toString();
         boolean fieldDone = mDone.isChecked();
@@ -74,34 +77,41 @@ public class MainActivity extends AppCompatActivity {
         task = new Task(fieldName);
         task.setDescription(fieldDescription);
         task.setDone(fieldDone);
-        newTask(mShortName,mDescription,mDone);
+        newTask(mShortName,mDescription,mDone,mDate);
 
 
 
         Snackbar.make(v, "New Task Added " , Snackbar.LENGTH_LONG).show();
     }
 
-    public void newTask(EditText mShortName,EditText mDescription,CheckBox mDone ){
+    public void newTask(EditText mShortName,EditText mDescription,CheckBox mDone, TextView mDate){
         mShortName.setText("");
         mDescription.setText("");
         //mCreationDate.setText("");
         mDone.setChecked(false);
+        mDate.setText("Date");
+
     }
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle saveInstanceState) {
         super.onSaveInstanceState(saveInstanceState);
         //save the state
-        saveInstanceState.putString("textInput1Data", binding.textInputEditText1.getText().toString());
-        saveInstanceState.putString("textInput2Data", binding.textInputEditText2.getText().toString());
+        saveInstanceState.putString("editDescription", binding.editDescription.getText().toString());
+        saveInstanceState.putString("editName", binding.editName.getText().toString());
+        saveInstanceState.putString("editData", binding.editData.getText().toString());
+
         //saveInstanceState.putString("editTextData", binding.editTextDate2.getText().toString());
     }
 
+
     private void openDialog(){
+        final String[] monthNames = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+
         DatePickerDialog dialog= new DatePickerDialog(this,  new DatePickerDialog.OnDateSetListener(){
             @Override
             public void onDateSet(DatePicker view, int year, int month, int day) {
-                binding.textView.setText(String.valueOf(year)+"/"+String.valueOf(month)+"/"+String.valueOf(day));
+                binding.editData.setText(monthNames[month] + ", " + String.valueOf(day) + " " + String.valueOf(year));
             }
         }, 2024,4,25);
         dialog.show();
