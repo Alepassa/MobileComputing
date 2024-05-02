@@ -1,9 +1,9 @@
 package com.example.myapplicationtask;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ActionBar;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.res.Configuration;
@@ -33,7 +33,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -52,11 +51,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        binding.buttonDate.setOnClickListener(new View.OnClickListener() {
+
+        binding.editData.setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
                 openDialog();
             }
         });
+
+
 
         //binding.toolbar.setTitle("My edit task");
         //
@@ -80,7 +83,6 @@ public class MainActivity extends AppCompatActivity {
         newTask(mShortName,mDescription,mDone,mDate);
 
 
-
         Snackbar.make(v, "New Task Added " , Snackbar.LENGTH_LONG).show();
     }
 
@@ -90,7 +92,6 @@ public class MainActivity extends AppCompatActivity {
         //mCreationDate.setText("");
         mDone.setChecked(false);
         mDate.setText("Date");
-
     }
 
     @Override
@@ -101,7 +102,6 @@ public class MainActivity extends AppCompatActivity {
         saveInstanceState.putString("editName", binding.editName.getText().toString());
         saveInstanceState.putString("editData", binding.editData.getText().toString());
 
-        //saveInstanceState.putString("editTextData", binding.editTextDate2.getText().toString());
     }
 
 
