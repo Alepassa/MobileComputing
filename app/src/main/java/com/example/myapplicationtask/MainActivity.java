@@ -17,13 +17,15 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toolbar;
-
 import com.example.myapplicationtask.databinding.ActivityMainBinding;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Objects;
+
+
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -101,7 +103,6 @@ public class MainActivity extends AppCompatActivity {
         saveInstanceState.putString("editDescription", binding.editDescription.getText().toString());
         saveInstanceState.putString("editName", binding.editName.getText().toString());
         saveInstanceState.putString("editData", binding.editData.getText().toString());
-
     }
 
 
