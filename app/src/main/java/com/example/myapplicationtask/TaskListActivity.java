@@ -16,7 +16,7 @@ public class TaskListActivity extends AppCompatActivity{
 
     private ActivityListTaskBinding binding; //used for the connect with xml object
     private List<Task> tasks;
-    private static final String BUNDLE_TASKS_KEY = "tasks";
+    private static final String BUNDLE_TASKS_KEY = "task";
 
     private TaskListAdapter adapter;
 

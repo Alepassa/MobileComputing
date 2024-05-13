@@ -2,6 +2,7 @@ package com.example.myapplicationtask;
 
 
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -41,12 +42,23 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskVi
     public void onBindViewHolder(TaskViewHolder holder, int position) {
         Task task = tasks.get(position);
         holder.bindItem(task);
+
+        holder.binding.checkBox3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Update the task object's done property
+                task.setDone(holder.binding.checkBox3.isChecked());
+            }
+        });
     }
+
 
     @Override
     public int getItemCount() {
         return tasks.size();
     }
+
+
 
     //lo scopo di questa classe sarà quello di gestire la visualizzazione
     // di un singolo elemento della lista della RecyclerView
@@ -61,6 +73,7 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskVi
             this.binding = binding;
         }
 
+
         //associa i dati di un oggetto task agli elemento UI all'interno
         // del viewHolder, impostano il checkbox a vero o falso a seconda
         //se la task è stata completata e il short name della task!
@@ -69,5 +82,5 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskVi
             binding.TaskNameTextView.setText(task.getShortName());
         }
     }
-
 }
+
