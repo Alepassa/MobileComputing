@@ -15,7 +15,11 @@
         <activity
             android:name=".MainActivity"
             android:theme="@style/Base.Theme.MyApplicationtask"
-            android:exported="true">
+            android:exported="false"/>
+        <activity
+            android:name=".TaskListActivity"
+            android:exported="true"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

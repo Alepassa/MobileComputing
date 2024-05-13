@@ -1,5 +1,9 @@
 package com.example.myapplicationtask;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -8,7 +12,7 @@ import java.util.GregorianCalendar;
  * Created by thorsten on 21.03.20.
  */
 
-public class Task {
+public class Task implements Parcelable {
 
     // simple ID generator
     private static int MAX_ID = 0;
@@ -24,6 +28,38 @@ public class Task {
         this.mShortName = shortName;
         this.mCreationDate = GregorianCalendar.getInstance().getTime();
     }
+
+    protected Task(Parcel in) {
+        mId = in.readInt();
+        mShortName = in.readString();
+        mDescription = in.readString();
+        mDone = in.readByte() != 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(mId);
+        dest.writeString(mShortName);
+        dest.writeString(mDescription);
+        dest.writeByte((byte) (mDone ? 1 : 0));
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<Task> CREATOR = new Creator<Task>() {
+        @Override
+        public Task createFromParcel(Parcel in) {
+            return new Task(in);
+        }
+
+        @Override
+        public Task[] newArray(int size) {
+            return new Task[size];
+        }
+    };
 
     public int getId() {
         return this.mId;
