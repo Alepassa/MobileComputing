@@ -8,6 +8,7 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.webkit.WebSettings;
@@ -28,6 +29,7 @@ import java.util.Objects;
 
 
 public class MainActivity extends AppCompatActivity {
+    public static final String TASK_EXTRA = "TASK_EXTRA";
 
     private ActivityMainBinding binding;
     private Task task;
@@ -62,6 +64,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Task task = getIntent().getParcelableExtra(MainActivity.TASK_EXTRA);
+        fillTask(task);
 
     }
 
@@ -76,16 +80,18 @@ public class MainActivity extends AppCompatActivity {
         task = new Task(fieldName);
         task.setDescription(fieldDescription);
         task.setDone(fieldDone);
-        newTask(mShortName,mDescription,mDone,mDate);
+        String dateToSet = mDate.getText().toString();
+        task.setDate(dateToSet);
+        newTask();
 
         Snackbar.make(v, "New Task Added " , Snackbar.LENGTH_LONG).show();
     }
 
-    public void newTask(EditText mShortName,EditText mDescription,CheckBox mDone, TextView mDate){
-        mShortName.setText("");
-        mDescription.setText("");
-        mDone.setChecked(false);
-        mDate.setText("Date");
+    public void newTask() { // Rimuovi i parametri
+        binding.editDescription.setText("");
+        binding.editName.setText("");
+        binding.checkBox2.setChecked(false);
+        binding.editData.setText("Date");
     }
 
     @Override
@@ -107,5 +113,17 @@ public class MainActivity extends AppCompatActivity {
             }
         }, 2024,4,25);
         dialog.show();
+    }
+
+    private void fillTask(Task task) {
+        binding.editDescription.setText(task.getShortName());
+        binding.editName.setText(task.getDescription());
+        binding.checkBox2.setChecked(task.isDone());
+        String date = task.getDate();
+        if (date != null) {
+            binding.editData.setText(date);
+        } else {
+            binding.editData.setText("Date");
+        }
     }
 }

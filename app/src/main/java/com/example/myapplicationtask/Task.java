@@ -12,7 +12,7 @@ import java.util.GregorianCalendar;
  * Created by thorsten on 21.03.20.
  */
 
-public class Task implements Parcelable {
+public class  Task implements Parcelable {
 
     // simple ID generator
     private static int MAX_ID = 0;
@@ -20,19 +20,19 @@ public class Task implements Parcelable {
     private int mId;
     private String mShortName;
     private String mDescription;
-    private Date mCreationDate;
+    private String mDate;
     private boolean mDone;
 
     public Task(String shortName) {
         this.mId = MAX_ID++;
         this.mShortName = shortName;
-        this.mCreationDate = GregorianCalendar.getInstance().getTime();
     }
 
     protected Task(Parcel in) {
         mId = in.readInt();
         mShortName = in.readString();
         mDescription = in.readString();
+        mDate = in.readString();
         mDone = in.readByte() != 0;
     }
 
@@ -41,6 +41,7 @@ public class Task implements Parcelable {
         dest.writeInt(mId);
         dest.writeString(mShortName);
         dest.writeString(mDescription);
+        dest.writeString(mDate);
         dest.writeByte((byte) (mDone ? 1 : 0));
     }
 
@@ -73,17 +74,23 @@ public class Task implements Parcelable {
         this.mShortName = shortName;
     }
 
+    public void setDate(String mDate) {
+        this.mDate = mDate;
+    }
+
+    public String getDate() {
+        return mDate;
+    }
+
     public String getDescription() {
         return mDescription;
     }
+
 
     public void setDescription(String description) {
         this.mDescription = description;
     }
 
-    public Date getCreationDate() {
-        return mCreationDate;
-    }
 
     public boolean isDone() {
         return mDone;
