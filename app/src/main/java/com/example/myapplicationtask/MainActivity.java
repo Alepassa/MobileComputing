@@ -1,9 +1,9 @@
 package com.example.myapplicationtask;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.ActionBar;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.res.Configuration;
@@ -64,6 +64,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        ActionBar bar = getSupportActionBar();
+        bar.setTitle("Edit Task");
         Task task = getIntent().getParcelableExtra(MainActivity.TASK_EXTRA);
         fillTask(task);
 
@@ -119,6 +121,8 @@ public class MainActivity extends AppCompatActivity {
         binding.editDescription.setText(task.getShortName());
         binding.editName.setText(task.getDescription());
         binding.checkBox2.setChecked(task.isDone());
+        //bisogna controllare perchè se si carica
+        //dalla memoria non sempre si mette una data
         String date = task.getDate();
         if (date != null) {
             binding.editData.setText(date);
@@ -126,4 +130,6 @@ public class MainActivity extends AppCompatActivity {
             binding.editData.setText("Date");
         }
     }
+
+
 }

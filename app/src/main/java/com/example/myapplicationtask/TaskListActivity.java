@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,6 +30,8 @@ public class TaskListActivity extends AppCompatActivity{
         //invokes the superclass's method
         super.onCreate(savedInstanceState);
 
+        ActionBar bar = getSupportActionBar();
+        bar.setTitle("Simple Task");
         binding = ActivityListTaskBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -52,8 +55,12 @@ public class TaskListActivity extends AppCompatActivity{
         binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Snackbar.make(v, "You pressed the ADD button", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                try {
+                    Intent intent = new Intent(TaskListActivity.this, MainActivity.class);
+                    startActivity(intent);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
 

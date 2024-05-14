@@ -15,6 +15,7 @@
         <activity
             android:name=".MainActivity"
             android:theme="@style/Base.Theme.MyApplicationtask"
+            android:parentActivityName=".TaskListActivity"
             android:exported="false"/>
         <activity
             android:name=".TaskListActivity"
