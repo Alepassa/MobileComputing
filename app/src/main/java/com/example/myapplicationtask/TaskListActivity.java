@@ -42,11 +42,9 @@ public class TaskListActivity extends AppCompatActivity{
         RecyclerView listView = binding.listview;
         listView.setLayoutManager(new LinearLayoutManager(this));
         listView.setAdapter(adapter);
-
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(listView.getContext(), DividerItemDecoration.VERTICAL);
         listView.addItemDecoration(dividerItemDecoration);
         listView.addItemDecoration(new SpaceItem(space_item));
-
     }
 
     @Override
