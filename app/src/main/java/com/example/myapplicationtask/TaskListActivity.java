@@ -25,10 +25,8 @@ public class TaskListActivity extends AppCompatActivity{
         //invokes the superclass's method
         super.onCreate(savedInstanceState);
 
-
         binding = ActivityListTaskBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
 
         if (savedInstanceState == null) {
             //if it's null it's created by first time so we can load the task in repository
@@ -52,4 +50,5 @@ public class TaskListActivity extends AppCompatActivity{
         outState.putParcelableArrayList(BUNDLE_TASKS_KEY, new ArrayList<>(tasks));
         super.onSaveInstanceState(outState);
     }
+
 }

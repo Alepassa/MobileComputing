@@ -11,23 +11,13 @@
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="-61dp" />
 
-    <Button
-        android:id="@+id/addButton"
-        android:layout_width="0dp"
-        android:layout_height="42dp"
-        android:layout_marginBottom="8dp"
-        android:text="ADD TASK"
-        app:layout_constraintBottom_toBottomOf="@+id/include"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/listview" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/listview"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="393dp"
+        android:layout_height="578dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="60dp"
+        android:layout_marginTop="65dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="70dp"
         app:layout_constraintBottom_toBottomOf="@+id/include"
@@ -37,6 +27,19 @@
         app:layout_constraintTop_toTopOf="@+id/include"
         app:layout_constraintVertical_bias="0.0"
         tools:listitem="@android:layout/list_content" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="56dp"
+        android:layout_height="0dp"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="16dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="32dp"
+        android:src="@drawable/add"
+        app:backgroundTint="@color/rosa"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
