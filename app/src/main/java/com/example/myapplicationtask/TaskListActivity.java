@@ -1,7 +1,7 @@
 package com.example.myapplicationtask;
 
 import android.os.Bundle;
-
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TaskListActivity extends AppCompatActivity{
-
+    private int space_item = 20;
     private ActivityListTaskBinding binding; //used for the connect with xml object
     private List<Task> tasks;
     private static final String BUNDLE_TASKS_KEY = "task";
@@ -42,6 +42,11 @@ public class TaskListActivity extends AppCompatActivity{
         RecyclerView listView = binding.listview;
         listView.setLayoutManager(new LinearLayoutManager(this));
         listView.setAdapter(adapter);
+
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(listView.getContext(), DividerItemDecoration.VERTICAL);
+        listView.addItemDecoration(dividerItemDecoration);
+        listView.addItemDecoration(new SpaceItem(space_item));
+
     }
 
     @Override
