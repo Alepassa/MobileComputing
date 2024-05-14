@@ -29,8 +29,9 @@
         android:id="@+id/checkBox3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
+        android:layout_marginStart="10dp"
         app:layout_constraintBaseline_toBaselineOf="@+id/TaskNameTextView"
+        android:button = "@drawable/chechbox_selector"
         app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
