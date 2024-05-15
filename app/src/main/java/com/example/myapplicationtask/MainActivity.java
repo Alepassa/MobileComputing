@@ -3,9 +3,13 @@ package com.example.myapplicationtask;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
@@ -26,13 +30,12 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 
-
-
 public class MainActivity extends AppCompatActivity {
     public static final String TASK_EXTRA = "TASK_EXTRA";
 
     private ActivityMainBinding binding;
     private Task task;
+    private TaskListAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,12 +53,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        binding.button1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addTask(v);
-            }
-        });
+
+        ActionBar bar = getSupportActionBar();
+        bar.setTitle("Edit Task");
+
+        Task task = getIntent().getParcelableExtra(MainActivity.TASK_EXTRA);
+        if(task != null)  fillTask(task); //perchè se task non passa niente è perchè stiamo premendo il tasto
+
 
         binding.editData.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,13 +68,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        ActionBar bar = getSupportActionBar();
-        bar.setTitle("Edit Task");
-        Task task = getIntent().getParcelableExtra(MainActivity.TASK_EXTRA);
-        fillTask(task);
+        binding.button1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, TaskListActivity.class);
+                startActivity(intent);
+                addTask(v);
+            }
+        });
+
 
     }
-
     public void addTask(View v){
         EditText mShortName =binding.editDescription;
         EditText mDescription = binding.editName;
@@ -85,8 +93,6 @@ public class MainActivity extends AppCompatActivity {
         String dateToSet = mDate.getText().toString();
         task.setDate(dateToSet);
         newTask();
-
-        Snackbar.make(v, "New Task Added " , Snackbar.LENGTH_LONG).show();
     }
 
     public void newTask() { // Rimuovi i parametri
@@ -104,7 +110,6 @@ public class MainActivity extends AppCompatActivity {
         saveInstanceState.putString("editData", binding.editData.getText().toString());
         super.onSaveInstanceState(saveInstanceState);
     }
-
 
     private void openDialog(){
         final String[] monthNames = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
@@ -130,6 +135,5 @@ public class MainActivity extends AppCompatActivity {
             binding.editData.setText("Date");
         }
     }
-
 
 }

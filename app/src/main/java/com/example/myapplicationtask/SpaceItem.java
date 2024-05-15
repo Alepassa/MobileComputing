@@ -12,12 +12,9 @@ import androidx.recyclerview.widget.RecyclerView;
 //used for a better visualitation of item in the recyclerview
 public class SpaceItem extends RecyclerView.ItemDecoration {
     private final int space;
-
     public SpaceItem(int space) {
         this.space = space;
     }
-
-
     @Override
     public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
         outRect.top = space;

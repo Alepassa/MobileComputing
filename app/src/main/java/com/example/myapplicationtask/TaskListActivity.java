@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.ActionBar;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.annotation.NonNull;
@@ -55,15 +56,10 @@ public class TaskListActivity extends AppCompatActivity{
         binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    Intent intent = new Intent(TaskListActivity.this, MainActivity.class);
-                    startActivity(intent);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                Intent intent2 = new Intent(TaskListActivity.this, MainActivity.class);
+                startActivity(intent2);
             }
         });
-
 
 
     }
