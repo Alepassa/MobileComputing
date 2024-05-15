@@ -12,6 +12,9 @@ import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Debug;
+import android.os.Message;
+import android.text.Editable;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -72,30 +75,35 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, TaskListActivity.class);
+                Task task = addTask(v);
+                intent.putExtra(TASK_EXTRA, task); //per passare i dettagli della nuova task
                 startActivity(intent);
-                addTask(v);
+                // OnTaskAdded(v);
             }
         });
-
-
     }
-    public void addTask(View v){
-        EditText mShortName =binding.editDescription;
-        EditText mDescription = binding.editName;
+
+
+   // private void OnTaskAdded(View v) {
+     //   Editable mShortName = binding.editName.getText();
+       // Snackbar.make(v, "New Task: " +  mShortName, Snackbar.LENGTH_SHORT).show();
+    //}
+
+    public Task addTask(View v){
+        EditText mShortName =binding.editName;
+        EditText mDescription = binding.editDescription;
         CheckBox mDone  = binding.checkBox2;
         TextView mDate = binding.editData;
-        String fieldName = Objects.requireNonNull(mShortName.getText()).toString();
-        String fieldDescription = Objects.requireNonNull(mDescription.getText()).toString();
+        String fieldName = (mShortName.getText()).toString();
         boolean fieldDone = mDone.isChecked();
         task = new Task(fieldName);
-        task.setDescription(fieldDescription);
+        task.setDescription(mDescription.getText().toString());
         task.setDone(fieldDone);
-        String dateToSet = mDate.getText().toString();
-        task.setDate(dateToSet);
-        //newTask();
+        task.setDate(mDate.getText().toString());
+        return task;
     }
 
-    public void newTask() { // Rimuovi i parametri
+    public void newTask() { // Rimuovi i parametri -  non serve per ora
         binding.editDescription.setText("");
         binding.editName.setText("");
         binding.checkBox2.setChecked(false);
@@ -135,5 +143,6 @@ public class MainActivity extends AppCompatActivity {
             binding.editData.setText("Date");
         }
     }
+
 
 }

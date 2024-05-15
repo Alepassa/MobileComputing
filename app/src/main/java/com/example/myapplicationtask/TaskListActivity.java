@@ -2,6 +2,7 @@ package com.example.myapplicationtask;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import androidx.activity.OnBackPressedCallback;
@@ -43,6 +44,18 @@ public class TaskListActivity extends AppCompatActivity{
             // we obtain the task by the status saved because it's not created now
             tasks = savedInstanceState.getParcelableArrayList(BUNDLE_TASKS_KEY);
         }
+
+        Task task = getIntent().getParcelableExtra(MainActivity.TASK_EXTRA);
+        if (task != null){
+            Log.d("TASK 1: ", task.getShortName());
+            Log.d("TASK 2: ", task.getDescription());
+            Log.d("TASK 3: ", task.getDate());
+            Log.d("TASK 4: ", String.valueOf(task.isDone()));
+
+
+            tasks.add(task);
+        }
+
 
         adapter = new TaskListAdapter(tasks,this::onTaskSelected);
         RecyclerView listView = binding.listview;
