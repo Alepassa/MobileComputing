@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
         task.setDone(fieldDone);
         String dateToSet = mDate.getText().toString();
         task.setDate(dateToSet);
-        newTask();
+        //newTask();
     }
 
     public void newTask() { // Rimuovi i parametri
