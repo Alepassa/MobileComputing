@@ -30,15 +30,17 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.sql.SQLOutput;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Objects;
 
 
 public class MainActivity extends AppCompatActivity {
+    //costante per passare dati fra le attività
     public static final String TASK_EXTRA = "TASK_EXTRA";
 
-    private ActivityMainBinding binding;
+    private ActivityMainBinding binding; //binding per le viste
     private Task task;
-    private TaskListAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,103 +48,99 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        if (savedInstanceState != null) {
-            String description = savedInstanceState.getString("editDescription");
-            binding.editDescription.setText(description);
-            String name = savedInstanceState.getString("editName");
-            binding.editName.setText(name);
-            String date = savedInstanceState.getString("editData");
-            binding.editData.setText(date);
-        }
-
-
-
+        restoreSavedInstanceState(savedInstanceState); //restore set
         ActionBar bar = getSupportActionBar();
-        bar.setTitle("Edit Task");
+        bar.setTitle("Edit Task");  //set name of the istance
+        handleIntent();
+        setupListeners();
+    }
 
+    //quando devo aggiungere una task si cambia activity
+    private void handleIntent(){
         Task task = getIntent().getParcelableExtra(MainActivity.TASK_EXTRA);
-        if(task != null)  fillTask(task); //perchè se task non passa niente è perchè stiamo premendo il tasto
+        if(task != null)
+            fillTask(task);  //verifica se ha ricevuto dati dall'altra attività
+    }
 
+    private void setupListeners() {
+        //se clicco sul datapicker
+        binding.editData.setOnClickListener(v -> openDialog());
 
-        binding.editData.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openDialog();
-            }
-        });
-
-        binding.button1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, TaskListActivity.class);
-                Task task = addTask(v);
-                intent.putExtra(TASK_EXTRA, task); //per passare i dettagli della nuova task
-                startActivity(intent);
-                // OnTaskAdded(v);
-            }
+        //button save
+        binding.button1.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, TaskListActivity.class);
+            Task task = addTask(v);
+            intent.putExtra(TASK_EXTRA, task);
+            startActivity(intent);
         });
     }
-
-
-   // private void OnTaskAdded(View v) {
-     //   Editable mShortName = binding.editName.getText();
-       // Snackbar.make(v, "New Task: " +  mShortName, Snackbar.LENGTH_SHORT).show();
-    //}
-
-    public Task addTask(View v){
-        EditText mShortName =binding.editName;
-        EditText mDescription = binding.editDescription;
-        CheckBox mDone  = binding.checkBox2;
-        TextView mDate = binding.editData;
-        String fieldName = (mShortName.getText()).toString();
-        boolean fieldDone = mDone.isChecked();
-        task = new Task(fieldName);
-        task.setDescription(mDescription.getText().toString());
-        task.setDone(fieldDone);
-        task.setDate(mDate.getText().toString());
-        return task;
-    }
-
-    public void newTask() { // Rimuovi i parametri -  non serve per ora
-        binding.editDescription.setText("");
-        binding.editName.setText("");
-        binding.checkBox2.setChecked(false);
-        binding.editData.setText("Date");
-    }
-
     @Override
     protected void onSaveInstanceState(@NonNull Bundle saveInstanceState) {
-        //save the state
         saveInstanceState.putString("editDescription", binding.editDescription.getText().toString());
         saveInstanceState.putString("editName", binding.editName.getText().toString());
         saveInstanceState.putString("editData", binding.editData.getText().toString());
         super.onSaveInstanceState(saveInstanceState);
     }
+    private void restoreSavedInstanceState(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            binding.editDescription.setText(savedInstanceState.getString("editDescription"));
+            binding.editName.setText(savedInstanceState.getString("editName"));
+            binding.editData.setText(savedInstanceState.getString("editData"));
+        }
+    }
 
-    private void openDialog(){
+    public Task addTask(View v){
+        String name = binding.editName.getText().toString();
+        String description = binding.editDescription.getText().toString();
+        boolean isDone = binding.checkBox2.isChecked();
+        String date = binding.editData.getText().toString();
+
+        Task task = new Task(name);
+        task.setDescription(description);
+        task.setDone(isDone);
+        task.setDate(date);
+        return task;
+    }
+
+    private void openDialog() {
         final String[] monthNames = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-        DatePickerDialog dialog= new DatePickerDialog(this,  new DatePickerDialog.OnDateSetListener(){
-            @Override
-            public void onDateSet(DatePicker view, int year, int month, int day) {
-                binding.editData.setText(monthNames[month] + ", " + String.valueOf(day) + " " + String.valueOf(year));
-            }
-        }, 2024,4,25);
+
+        Calendar calendar = Calendar.getInstance();
+        int year, month, day;
+        String currentData = binding.editData.getText().toString();
+
+        if (currentData.equals("Date")) {
+            year = calendar.get(Calendar.YEAR);
+            month = calendar.get(Calendar.MONTH);
+            day = calendar.get(Calendar.DAY_OF_MONTH);
+        } else {  // quando aprimo il datapicker con la data selezionata MAY 23, 2024
+            // vogliamo che il datapicker mostra la data che hai selezionato invece di quella di oggi
+            // permettendo di aumentare l'esperienza dell'utente
+            String[] divideDate = currentData.split(" ");
+            month = Arrays.asList(monthNames).indexOf(divideDate[0]);
+            day = Integer.parseInt(divideDate[1].replace(",",""));
+            year = Integer.parseInt(divideDate[2]);
+        }
+
+        DatePickerDialog dialog = new DatePickerDialog(this, (view, selectedYear, selectedMonth, selectedDay) -> {
+            binding.editData.setText(monthNames[selectedMonth] + " "+  selectedDay + ", "+selectedYear);
+        }, year, month, day);
+
         dialog.show();
     }
 
+
+    //quando passiamo dall'activity taskListAdapter dobbiamo aprire le informazioni
+    //inerenti a quella task, quindi visualizzare nome della task e se sono disponibili
+    //anche la descrizione, data e se isDone è riempito o meno
     private void fillTask(Task task) {
-        binding.editDescription.setText(task.getShortName());
-        binding.editName.setText(task.getDescription());
+        binding.editName.setText(task.getShortName());
+        binding.editDescription.setText(task.getDescription());
         binding.checkBox2.setChecked(task.isDone());
-        //bisogna controllare perchè se si carica
-        //dalla memoria non sempre si mette una data
         String date = task.getDate();
-        if (date != null) {
-            binding.editData.setText(date);
-        } else {
-            binding.editData.setText("Date");
-        }
+        binding.editData.setText(date != null ? date : "Date");
     }
+
 
 
 }

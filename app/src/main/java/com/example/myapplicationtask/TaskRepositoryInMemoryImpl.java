@@ -30,7 +30,7 @@ public class TaskRepositoryInMemoryImpl implements TaskRepository {
         Task myTask = new Task("Empty the trash");
         myTask.setDescription("Someone has to get the dirty jobs done...");
         myTask.setDone(true);
-        myTask.setDate("Feb 28,2018");
+        myTask.setDate("Feb 28, 2018");
 
         mTasks.add(myTask);
         mTasks.add(new Task("Groceries"));
@@ -38,7 +38,7 @@ public class TaskRepositoryInMemoryImpl implements TaskRepository {
         myTask = new Task("Do Android programming");
         myTask.setDescription("Nobody said it would be easy!");
         myTask.setDone(false);
-        myTask.setDate("Feb 29,2018");
+        myTask.setDate("Feb 29, 2018");
         mTasks.add(myTask);
 
 //        for (int i=0; i<40; i++)

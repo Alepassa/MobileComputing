@@ -47,12 +47,6 @@ public class TaskListActivity extends AppCompatActivity{
 
         Task task = getIntent().getParcelableExtra(MainActivity.TASK_EXTRA);
         if (task != null){
-            Log.d("TASK 1: ", task.getShortName());
-            Log.d("TASK 2: ", task.getDescription());
-            Log.d("TASK 3: ", task.getDate());
-            Log.d("TASK 4: ", String.valueOf(task.isDone()));
-
-
             tasks.add(task);
         }
 
@@ -90,9 +84,9 @@ public class TaskListActivity extends AppCompatActivity{
     public void onTaskSelected(Task task){
         // parametro inizio attività e fine destinazione
         Intent intent = new Intent(this, MainActivity.class);
-
         intent.putExtra(MainActivity.TASK_EXTRA, task);
         startActivity(intent);
     }
+
 
 }
