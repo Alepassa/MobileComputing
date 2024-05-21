@@ -141,6 +141,4 @@ public class MainActivity extends AppCompatActivity {
         binding.editData.setText(date != null ? date : "Date");
     }
 
-
-
 }

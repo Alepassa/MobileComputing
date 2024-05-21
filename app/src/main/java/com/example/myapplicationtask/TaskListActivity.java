@@ -20,22 +20,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TaskListActivity extends AppCompatActivity{
-    private int space_item = 20;
+    private static final String BUNDLE_TASKS_KEY = "task";
+    private static final int SPACE_ITEM = 20; // for space in item list
     private ActivityListTaskBinding binding; //used for the connect with xml object
     private List<Task> tasks;
-    private static final String BUNDLE_TASKS_KEY = "task";
-
     private TaskListAdapter adapter;
 
     @Override //method used when the activity starts
     protected void onCreate(Bundle savedInstanceState) {
-        //invokes the superclass's method
         super.onCreate(savedInstanceState);
+        binding = ActivityListTaskBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         ActionBar bar = getSupportActionBar();
         bar.setTitle("Simple Task");
-        binding = ActivityListTaskBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
 
         if (savedInstanceState == null) {
             //if it's null it's created by first time so we can load the task in repository
@@ -45,21 +43,22 @@ public class TaskListActivity extends AppCompatActivity{
             tasks = savedInstanceState.getParcelableArrayList(BUNDLE_TASKS_KEY);
         }
 
-        Task task = getIntent().getParcelableExtra(MainActivity.TASK_EXTRA);
-        if (task != null){
-            tasks.add(task);
-        }
+        setupRecyclerView();
+        handleIntent();
+    }
 
-
-        adapter = new TaskListAdapter(tasks,this::onTaskSelected);
+    private void setupRecyclerView() {
+        adapter = new TaskListAdapter(tasks, this::onTaskSelected);
         RecyclerView listView = binding.listview;
         listView.setLayoutManager(new LinearLayoutManager(this));
         listView.setAdapter(adapter);
+
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(listView.getContext(), DividerItemDecoration.VERTICAL);
         listView.addItemDecoration(dividerItemDecoration);
-        listView.addItemDecoration(new SpaceItem(space_item));
+        listView.addItemDecoration(new SpaceItem(SPACE_ITEM));
+    }
 
-        // https://developer.android.com/develop/ui/views/components/floating-action-button?hl=it
+    private void setupListeners() {
         binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -67,26 +66,28 @@ public class TaskListActivity extends AppCompatActivity{
                 startActivity(intent2);
             }
         });
-
-
     }
 
 
-    @Override
+        @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putParcelableArrayList(BUNDLE_TASKS_KEY, new ArrayList<>(tasks));
         super.onSaveInstanceState(outState);
     }
 
+    private void handleIntent(){
+        Task task = getIntent().getParcelableExtra(MainActivity.TASK_EXTRA);
+        if (task != null){
+            tasks.add(task);
+        }
+    }
 
     // metodo per gestire l'evento del click sulla task
-
     public void onTaskSelected(Task task){
         // parametro inizio attività e fine destinazione
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra(MainActivity.TASK_EXTRA, task);
         startActivity(intent);
     }
-
 
 }
