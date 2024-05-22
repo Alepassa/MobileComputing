@@ -6,6 +6,10 @@ import android.util.Log;
 import android.view.View;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.annotation.NonNull;
@@ -26,6 +30,8 @@ public class TaskListActivity extends AppCompatActivity{
     private List<Task> tasks;
     private TaskListAdapter adapter;
 
+    private ActivityResultLauncher<Intent> activityLauncher;
+
     @Override //method used when the activity starts
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +51,7 @@ public class TaskListActivity extends AppCompatActivity{
 
         setupRecyclerView();
         handleIntent();
+        setupListeners();
     }
 
     private void setupRecyclerView() {
@@ -63,11 +70,10 @@ public class TaskListActivity extends AppCompatActivity{
             @Override
             public void onClick(View v) {
                 Intent intent2 = new Intent(TaskListActivity.this, MainActivity.class);
-                startActivity(intent2);
+                activityLauncher.launch(intent2);
             }
         });
     }
-
 
         @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
@@ -77,9 +83,30 @@ public class TaskListActivity extends AppCompatActivity{
 
     private void handleIntent(){
         Task task = getIntent().getParcelableExtra(MainActivity.TASK_EXTRA);
-        if (task != null){
-            tasks.add(task);
-        }
+
+        activityLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Task taskReceived = result.getData().getParcelableExtra(MainActivity.TASK_EXTRA);
+                        if (taskReceived != null) {
+                            boolean isUpdated = false;
+                            for (int i = 0; i < tasks.size(); i++) {
+                                if (tasks.get(i).getId() == taskReceived.getId()) {
+                                    tasks.set(i, taskReceived);
+                                    isUpdated = true; //if we update an existing task
+                                    break;
+                                }
+                            }
+                            //it means that it's a new task with a new id!
+                            if (!isUpdated) {
+                                tasks.add(taskReceived);
+                            }
+                            adapter.notifyDataSetChanged();
+                        }
+                    }
+                }
+        );
     }
 
     // metodo per gestire l'evento del click sulla task
@@ -87,7 +114,9 @@ public class TaskListActivity extends AppCompatActivity{
         // parametro inizio attività e fine destinazione
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra(MainActivity.TASK_EXTRA, task);
-        startActivity(intent);
+        activityLauncher.launch(intent);
     }
+
+
 
 }

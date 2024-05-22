@@ -55,25 +55,33 @@ public class MainActivity extends AppCompatActivity {
         setupListeners();
     }
 
-    //quando devo aggiungere una task si cambia activity
+    //quando passiamo dall'activity taskListAdapter dobbiamo aprire le informazioni
+    //inerenti a quella task, quindi visualizzare nome della task e se sono disponibili
+    //anche la descrizione, data e se isDone è riempito o meno
     private void handleIntent(){
         Task task = getIntent().getParcelableExtra(MainActivity.TASK_EXTRA);
-        if(task != null)
-            fillTask(task);  //verifica se ha ricevuto dati dall'altra attività
+        if(task != null) {
+            binding.editName.setText(task.getShortName());
+            binding.editDescription.setText(task.getDescription());
+            binding.checkBox2.setChecked(task.isDone());
+            String date = task.getDate();
+            binding.editData.setText(date != null ? date : "Date");
+        }
     }
 
     private void setupListeners() {
         //se clicco sul datapicker
         binding.editData.setOnClickListener(v -> openDialog());
-
         //button save
         binding.button1.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, TaskListActivity.class);
-            Task task = addTask(v);
-            intent.putExtra(TASK_EXTRA, task);
-            startActivity(intent);
+            Intent intent = new Intent();
+            Task taskReturned = addOrUpdateTask(v);
+            intent.putExtra(TASK_EXTRA, taskReturned);
+            setResult(RESULT_OK, intent);
+            finish();
         });
     }
+
     @Override
     protected void onSaveInstanceState(@NonNull Bundle saveInstanceState) {
         saveInstanceState.putString("editDescription", binding.editDescription.getText().toString());
@@ -89,17 +97,28 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public Task addTask(View v){
+    public Task addOrUpdateTask(View v){
         String name = binding.editName.getText().toString();
         String description = binding.editDescription.getText().toString();
         boolean isDone = binding.checkBox2.isChecked();
         String date = binding.editData.getText().toString();
 
-        Task task = new Task(name);
-        task.setDescription(description);
-        task.setDone(isDone);
-        task.setDate(date);
-        return task;
+        Task receivedTask = getIntent().getParcelableExtra(MainActivity.TASK_EXTRA);
+        //update if already exist the task
+        if(receivedTask != null ) {
+            receivedTask.setShortName(name);
+            receivedTask.setDescription(description);
+            receivedTask.setDone(isDone);
+            receivedTask.setDate(date);
+            return receivedTask;
+        }
+        //if we pressed add button we just create a new task
+        // we check if the task has atleast a short name
+        if(!name.isEmpty()) {
+            return new Task(name, description, date, isDone);
+        }
+
+        return null;
     }
 
     private void openDialog() {
@@ -127,18 +146,6 @@ public class MainActivity extends AppCompatActivity {
         }, year, month, day);
 
         dialog.show();
-    }
-
-
-    //quando passiamo dall'activity taskListAdapter dobbiamo aprire le informazioni
-    //inerenti a quella task, quindi visualizzare nome della task e se sono disponibili
-    //anche la descrizione, data e se isDone è riempito o meno
-    private void fillTask(Task task) {
-        binding.editName.setText(task.getShortName());
-        binding.editDescription.setText(task.getDescription());
-        binding.checkBox2.setChecked(task.isDone());
-        String date = task.getDate();
-        binding.editData.setText(date != null ? date : "Date");
     }
 
 }

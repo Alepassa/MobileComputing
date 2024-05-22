@@ -27,6 +27,15 @@ public class  Task implements Parcelable {
         this.mId = MAX_ID++;
         this.mShortName = shortName;
     }
+    public Task(String shortName, String mDescription, String mDate, Boolean mDone) {
+        this.mId = MAX_ID++;
+        this.mShortName = shortName;
+        this.mDescription= mDescription;
+        this.mDate = mDate;
+        this.mDone= mDone;
+    }
+
+
 
     protected Task(Parcel in) {
         mId = in.readInt();
