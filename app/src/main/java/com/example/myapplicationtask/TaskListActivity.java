@@ -25,7 +25,7 @@ import java.util.List;
 
 public class TaskListActivity extends AppCompatActivity{
     private static final String BUNDLE_TASKS_KEY = "task";
-    private static final int SPACE_ITEM = 20; // for space in item list
+    private static final int SPACE_ITEM = 20;
     private ActivityListTaskBinding binding; //used for the connect with xml object
     private List<Task> tasks;
     private TaskListAdapter adapter;
@@ -42,10 +42,8 @@ public class TaskListActivity extends AppCompatActivity{
         bar.setTitle("Simple Task");
 
         if (savedInstanceState == null) {
-            //if it's null it's created by first time so we can load the task in repository
             tasks = TaskRepositoryInMemoryImpl.getInstance().loadTasks();
         } else {
-            // we obtain the task by the status saved because it's not created now
             tasks = savedInstanceState.getParcelableArrayList(BUNDLE_TASKS_KEY);
         }
 

@@ -117,7 +117,6 @@ public class MainActivity extends AppCompatActivity {
         if(!name.isEmpty()) {
             return new Task(name, description, date, isDone);
         }
-
         return null;
     }
 
@@ -132,9 +131,7 @@ public class MainActivity extends AppCompatActivity {
             year = calendar.get(Calendar.YEAR);
             month = calendar.get(Calendar.MONTH);
             day = calendar.get(Calendar.DAY_OF_MONTH);
-        } else {  // quando aprimo il datapicker con la data selezionata MAY 23, 2024
-            // vogliamo che il datapicker mostra la data che hai selezionato invece di quella di oggi
-            // permettendo di aumentare l'esperienza dell'utente
+        } else {
             String[] divideDate = currentData.split(" ");
             month = Arrays.asList(monthNames).indexOf(divideDate[0]);
             day = Integer.parseInt(divideDate[1].replace(",",""));

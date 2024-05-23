@@ -51,6 +51,7 @@
         android:ems="10"
         android:hint="Enter description here.."
         android:inputType="textMultiLine"
+        android:theme="@style/CustomEditTextTheme"
         android:maxLines="2"
         android:scrollbars="vertical"
         app:layout_constraintBaseline_toBaselineOf="@+id/textView3"
@@ -65,6 +66,7 @@
         android:ems="10"
         android:hint="Enter short name here.."
         android:inputType="textMultiLine"
+        android:theme="@style/CustomEditTextTheme"
         android:maxLines="2"
         android:scrollbars="vertical"
         app:layout_constraintBaseline_toBaselineOf="@+id/textView2"
@@ -116,6 +118,7 @@
         android:id="@+id/checkBox2"
         android:layout_width="0dp"
         android:layout_height="48dp"
+        android:button = "@drawable/chechbox_selector"
         app:layout_constraintBaseline_toBaselineOf="@+id/textView1"
         app:layout_constraintStart_toStartOf="@+id/guideline" />
 
