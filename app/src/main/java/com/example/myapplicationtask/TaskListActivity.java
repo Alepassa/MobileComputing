@@ -3,7 +3,11 @@ package com.example.myapplicationtask;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResult;
@@ -41,6 +45,7 @@ public class TaskListActivity extends AppCompatActivity{
         ActionBar bar = getSupportActionBar();
         bar.setTitle("Simple Task");
 
+
         if (savedInstanceState == null) {
             tasks = TaskRepositoryInMemoryImpl.getInstance().loadTasks();
         } else {
@@ -50,6 +55,28 @@ public class TaskListActivity extends AppCompatActivity{
         setupRecyclerView();
         handleIntent();
         setupListeners();
+    }
+
+
+    //https://developer.android.com/develop/ui/views/components/menus?hl=it
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.firstOption) {
+            return true;
+        } else if (item.getItemId() == R.id.secondOption) {
+            return true;
+        } else if (item.getItemId() == R.id.thirdOption) {
+            //delete finished task
+            TaskRepositoryInMemoryImpl.getInstance().deleteFinishedTasks();
+            adapter.notifyDataSetChanged();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void setupRecyclerView() {

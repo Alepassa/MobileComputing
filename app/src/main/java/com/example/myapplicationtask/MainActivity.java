@@ -17,6 +17,8 @@ import android.os.Message;
 import android.text.Editable;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.widget.Button;
@@ -54,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
         handleIntent();
         setupListeners();
     }
+
 
     //quando passiamo dall'activity taskListAdapter dobbiamo aprire le informazioni
     //inerenti a quella task, quindi visualizzare nome della task e se sono disponibili

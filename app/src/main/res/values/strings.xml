@@ -5,4 +5,8 @@
     <string name="first_tool_bar">Edit Task</string>
     <string name="secondo_tool_bar">Simple Task App</string>
     <string name="button_main_activity">Save</string>
+    <string name="first_option_menu">Show all tasks</string>
+    <string name="second_option_menu">Show unfinished tasks</string>
+    <string name="third_option_menu">Delete finished tasks</string>
+
 </resources>
