@@ -38,7 +38,7 @@ public class TaskRepositoryInMemoryImpl implements TaskRepository {
         myTask = new Task("Do Android programming");
         myTask.setDescription("Nobody said it would be easy!");
         myTask.setDone(false);
-        myTask.setDate("Feb 29, 2018");
+        myTask.setDate("May 20, 2018");
         mTasks.add(myTask);
 
 //        for (int i=0; i<40; i++)
