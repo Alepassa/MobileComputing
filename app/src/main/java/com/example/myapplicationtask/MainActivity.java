@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         //se clicco sul datapicker
         binding.editData.setOnClickListener(v -> openDialog());
         //button save
-        binding.button1.setOnClickListener(v -> {
+        binding.fab1.setOnClickListener(v -> {
             Intent intent = new Intent();
             Task taskReturned = addOrUpdateTask(v);
             intent.putExtra(TASK_EXTRA, taskReturned);
