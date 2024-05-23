@@ -45,14 +45,20 @@ public class TaskListActivity extends AppCompatActivity{
         ActionBar bar = getSupportActionBar();
         bar.setTitle("Simple Task");
 
-
         if (savedInstanceState == null) {
             tasks = TaskRepositoryInMemoryImpl.getInstance().loadTasks();
         } else {
             tasks = savedInstanceState.getParcelableArrayList(BUNDLE_TASKS_KEY);
         }
 
-        setupRecyclerView();
+        adapter = new TaskListAdapter(tasks, this::onTaskSelected);
+        RecyclerView listView = binding.listview;
+        listView.setLayoutManager(new LinearLayoutManager(this));
+        listView.setAdapter(adapter);
+
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(listView.getContext(), DividerItemDecoration.VERTICAL);
+        listView.addItemDecoration(dividerItemDecoration);
+        listView.addItemDecoration(new SpaceItem(SPACE_ITEM));
         handleIntent();
         setupListeners();
     }
@@ -64,31 +70,50 @@ public class TaskListActivity extends AppCompatActivity{
         inflater.inflate(R.menu.main_menu, menu);
         return true;
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.firstOption) {
+            //implement the logic for "SHOW ALL TASK"
+            setupRecyclerView(tasks);
             return true;
         } else if (item.getItemId() == R.id.secondOption) {
+            //implement the logic for "SHOW unfinished tasks"
+            List<Task> unfinishedTask = showUnfinishedTask();
+            setupRecyclerView(unfinishedTask);
             return true;
         } else if (item.getItemId() == R.id.thirdOption) {
-            //delete finished task
-            TaskRepositoryInMemoryImpl.getInstance().deleteFinishedTasks();
-            adapter.notifyDataSetChanged();
+            for(Task t : tasks) { //se esiste almeno una task la elimino
+                if(t.isDone()) {
+                    TaskRepositoryInMemoryImpl.getInstance().deleteFinishedTasks();
+                    adapter.notifyDataSetChanged();
+                    return true;
+                }
+            }
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void setupRecyclerView() {
+    private List<Task> showUnfinishedTask(){
+        List<Task> unfinishedTask = new ArrayList<>();
+        for (int i=0; i< tasks.size(); i++) {
+            Task task = tasks.get(i);
+            if (!task.isDone()) {
+                unfinishedTask.add(task);
+            }
+        }
+        return unfinishedTask;  //torna una lista di attività non finite
+    }
+
+    private void setupRecyclerView(List<Task> tasks) {
         adapter = new TaskListAdapter(tasks, this::onTaskSelected);
         RecyclerView listView = binding.listview;
         listView.setLayoutManager(new LinearLayoutManager(this));
         listView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+    } //permette di modificare la lista nella recycler view
 
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(listView.getContext(), DividerItemDecoration.VERTICAL);
-        listView.addItemDecoration(dividerItemDecoration);
-        listView.addItemDecoration(new SpaceItem(SPACE_ITEM));
-    }
 
     private void setupListeners() {
         binding.fab.setOnClickListener(new View.OnClickListener() {
