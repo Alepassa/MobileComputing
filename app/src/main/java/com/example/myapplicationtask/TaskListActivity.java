@@ -2,16 +2,7 @@ package com.example.myapplicationtask;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-
-
-import androidx.activity.OnBackPressedCallback;
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
+import android.view.*;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
@@ -22,8 +13,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplicationtask.databinding.ActivityListTaskBinding;
-import com.google.android.material.snackbar.Snackbar;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +22,7 @@ public class TaskListActivity extends AppCompatActivity{
     private ActivityListTaskBinding binding; //used for the connect with xml object
     private List<Task> tasks;
     private TaskListAdapter adapter;
+    private FilteredTasksAdapter filterTasks;
 
     private ActivityResultLauncher<Intent> activityLauncher;
 
@@ -51,7 +41,8 @@ public class TaskListActivity extends AppCompatActivity{
             tasks = savedInstanceState.getParcelableArrayList(BUNDLE_TASKS_KEY);
         }
 
-        adapter = new TaskListAdapter(tasks, this::onTaskSelected);
+        filterTasks = new FilteredTasksAdapter(tasks);
+        adapter = new TaskListAdapter(filterTasks.getFilteredTasks(), this::onTaskSelected);
         RecyclerView listView = binding.listview;
         listView.setLayoutManager(new LinearLayoutManager(this));
         listView.setAdapter(adapter);
@@ -72,47 +63,25 @@ public class TaskListActivity extends AppCompatActivity{
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.firstOption) {
-            //implement the logic for "SHOW ALL TASK"
-            setupRecyclerView(tasks);
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+        if(item.getItemId() == R.id.firstOption){
+            filterTasks.setShowUnfinished(false);
+            adapter.updateTasks(filterTasks.getFilteredTasks());
             return true;
-        } else if (item.getItemId() == R.id.secondOption) {
-            //implement the logic for "SHOW unfinished tasks"
-            List<Task> unfinishedTask = showUnfinishedTask();
-            setupRecyclerView(unfinishedTask);
+        }
+        else if(item.getItemId() == R.id.secondOption){
+            filterTasks.setShowUnfinished(true);
+            adapter.updateTasks(filterTasks.getFilteredTasks());
             return true;
-        } else if (item.getItemId() == R.id.thirdOption) {
-            for(Task t : tasks) { //se esiste almeno una task la elimino
-                if(t.isDone()) {
-                    TaskRepositoryInMemoryImpl.getInstance().deleteFinishedTasks();
-                    adapter.notifyDataSetChanged();
-                    return true;
-                }
-            }
+        }
+        else if(item.getItemId() == R.id.thirdOption){
+            filterTasks.deleteFinishedTasks();
+            adapter.updateTasks(filterTasks.getFilteredTasks());
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
-
-    private List<Task> showUnfinishedTask(){
-        List<Task> unfinishedTask = new ArrayList<>();
-        for (int i=0; i< tasks.size(); i++) {
-            Task task = tasks.get(i);
-            if (!task.isDone()) {
-                unfinishedTask.add(task);
-            }
-        }
-        return unfinishedTask;  //torna una lista di attività non finite
-    }
-
-    private void setupRecyclerView(List<Task> tasks) {
-        adapter = new TaskListAdapter(tasks, this::onTaskSelected);
-        RecyclerView listView = binding.listview;
-        listView.setLayoutManager(new LinearLayoutManager(this));
-        listView.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
-    } //permette di modificare la lista nella recycler view
 
 
     private void setupListeners() {

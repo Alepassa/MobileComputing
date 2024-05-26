@@ -96,5 +96,10 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskVi
             itemView.setOnClickListener(v -> TaskListAdapter.this.listener.onTaskSelected(task));
         }
     }
+
+    public void updateTasks(List<Task> newTasks) {
+        this.tasks = newTasks;
+        notifyDataSetChanged();
+    }
 }
 
