@@ -50,8 +50,6 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         handleIntent();
-        // chiamata fatta prima per evitare di sovrascrivere cambiamenti
-        //non salvati ancora nella task a causa del cambiamento della rotazione
 
         if (savedInstanceState != null) {
             String description = savedInstanceState.getString("editDescription");
@@ -63,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         ActionBar bar = getSupportActionBar();
-        bar.setTitle("Edit Task");  //set name of the istance
+        bar.setTitle("Edit Task");
         setupListeners();
     }
 

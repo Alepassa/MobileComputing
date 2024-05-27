@@ -23,7 +23,6 @@ public class TaskListActivity extends AppCompatActivity{
     private ActivityListTaskBinding binding;
     private List<Task> tasks;
     private FilteredTasksAdapter adapter;
-
     private ActivityResultLauncher<Intent> activityLauncher;
 
     @Override //method used when the activity starts

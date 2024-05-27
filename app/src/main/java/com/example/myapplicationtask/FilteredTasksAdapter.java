@@ -22,9 +22,7 @@ public class FilteredTasksAdapter extends TaskListAdapter {
         this.showAllTasks = true;  //default show all task
     }
 
-    //se impostato a true mostriamo tutte le task
-    //se invece è impostato a false solo le task non ancora completate
-    // utilizziamo gli stream per semplificare il codice
+    // return all task or just uncompleted tasks
     private void filterTasks() {
         this.tasks = showAllTasks ? new ArrayList<>(originalTasks):
                 originalTasks.stream()
@@ -34,13 +32,13 @@ public class FilteredTasksAdapter extends TaskListAdapter {
     }
 
 
-    public void setFilter(boolean showAll) {
+    public void setFilter(boolean showAll) {  //true all task, false uncompleted task
         this.showAllTasks = showAll;
         filterTasks();
     }
 
-    public void updateTasks(List<Task> newTasks) {
-        this.originalTasks = new ArrayList<>(newTasks);
+    public void updateTasks(List<Task> updateTasks) {  //called after a modify of item or new task
+        this.originalTasks = new ArrayList<>(updateTasks);
         filterTasks();
     }
 
