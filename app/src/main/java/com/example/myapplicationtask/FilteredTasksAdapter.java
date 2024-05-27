@@ -1,48 +1,47 @@
 package com.example.myapplicationtask;
 
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+import com.example.myapplicationtask.databinding.TaskListItemBinding;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class FilteredTasksAdapter {
 
-    private List<Task> allTasks;
-    private List<Task> filteredTasks;
+public class FilteredTasksAdapter extends TaskListAdapter {
 
-    private boolean showUnfinished;
+    private List<Task> originalTasks;
+    private boolean showAllTasks;
 
-    public FilteredTasksAdapter(List<Task> tasks){
-        this.allTasks = tasks;
-        this.filteredTasks = new ArrayList<>(tasks);
-        showUnfinished = false;
+    public FilteredTasksAdapter(List<Task> tasks, OnTaskSelectedListener listener) {
+        super(new ArrayList<>(tasks), listener);
+        this.originalTasks = new ArrayList<>(tasks);
+        this.showAllTasks = true;  //default show all task
     }
 
-    public void setShowUnfinished(boolean showUnfinished){
-        this.showUnfinished = showUnfinished;
+    //se impostato a true mostriamo tutte le task
+    //se invece è impostato a false solo le task non ancora completate
+    // utilizziamo gli stream per semplificare il codice
+    private void filterTasks() {
+        this.tasks = showAllTasks ? new ArrayList<>(originalTasks):
+                originalTasks.stream()
+                        .filter(task -> !task.isDone())
+                        .collect(Collectors.toList());
+        notifyDataSetChanged();
+    }
+
+
+    public void setFilter(boolean showAll) {
+        this.showAllTasks = showAll;
         filterTasks();
     }
 
-    public List<Task> getFilteredTasks() {
-        return filteredTasks;
-    }
-
-    private void filterTasks(){
-        if(!showUnfinished){ //torna array di tutte le task
-            filteredTasks = new ArrayList<>(allTasks);
-        }else{ //se no torna array di task non completate
-            filteredTasks= new ArrayList<>();
-            for(Task t : allTasks){
-                if(!t.isDone()) filteredTasks.add(t);
-            }
-        }
-    }
-
-
-    public void deleteFinishedTasks(){
-        List<Task> taskNotFinished= new ArrayList<>();
-        for(Task t : allTasks){
-            if(!t.isDone()) taskNotFinished.add(t);
-        }
-        allTasks = taskNotFinished;
+    public void updateTasks(List<Task> newTasks) {
+        this.originalTasks = new ArrayList<>(newTasks);
         filterTasks();
     }
+
 }

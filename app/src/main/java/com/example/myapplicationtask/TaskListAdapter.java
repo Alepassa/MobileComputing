@@ -26,7 +26,7 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskVi
     public interface OnTaskSelectedListener {
         void onTaskSelected(Task task);
     }
-    private List<Task> tasks;
+    protected List<Task> tasks;
     // come costruttore passaremo una lista di task precedenemtne salvati e che veranno visualizzati nella recyclerview
 
     private OnTaskSelectedListener listener;
@@ -35,6 +35,7 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskVi
         this.tasks = tasks;
         this.listener= listener;
     }
+
 
 
     //crea un nuovo viewHolder per rappresentare un singolo elemento della lista
@@ -67,7 +68,6 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskVi
     }
 
 
-
     //lo scopo di questa classe sarà quello di gestire la visualizzazione
     // di un singolo elemento della lista della RecyclerView
     public class TaskViewHolder extends RecyclerView.ViewHolder {
@@ -97,9 +97,5 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskVi
         }
     }
 
-    public void updateTasks(List<Task> newTasks) {
-        this.tasks = newTasks;
-        notifyDataSetChanged();
-    }
 }
 

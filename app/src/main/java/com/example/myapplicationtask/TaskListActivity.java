@@ -15,14 +15,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.myapplicationtask.databinding.ActivityListTaskBinding;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TaskListActivity extends AppCompatActivity{
     private static final String BUNDLE_TASKS_KEY = "task";
     private static final int SPACE_ITEM = 20;
-    private ActivityListTaskBinding binding; //used for the connect with xml object
+    private ActivityListTaskBinding binding;
     private List<Task> tasks;
-    private TaskListAdapter adapter;
-    private FilteredTasksAdapter filterTasks;
+    private FilteredTasksAdapter adapter;
 
     private ActivityResultLauncher<Intent> activityLauncher;
 
@@ -41,19 +41,20 @@ public class TaskListActivity extends AppCompatActivity{
             tasks = savedInstanceState.getParcelableArrayList(BUNDLE_TASKS_KEY);
         }
 
-        filterTasks = new FilteredTasksAdapter(tasks);
-        adapter = new TaskListAdapter(filterTasks.getFilteredTasks(), this::onTaskSelected);
-        RecyclerView listView = binding.listview;
-        listView.setLayoutManager(new LinearLayoutManager(this));
-        listView.setAdapter(adapter);
-
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(listView.getContext(), DividerItemDecoration.VERTICAL);
-        listView.addItemDecoration(dividerItemDecoration);
-        listView.addItemDecoration(new SpaceItem(SPACE_ITEM));
+        setupRecyclerView();
         handleIntent();
         setupListeners();
     }
 
+
+    public void setupRecyclerView(){
+        adapter = new FilteredTasksAdapter(tasks, this::onTaskSelected);
+        RecyclerView listView = binding.listview;
+        listView.setLayoutManager(new LinearLayoutManager(this));
+        listView.setAdapter(adapter);
+        listView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        listView.addItemDecoration(new SpaceItem(SPACE_ITEM));
+    }
 
     //https://developer.android.com/develop/ui/views/components/menus?hl=it
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -64,25 +65,25 @@ public class TaskListActivity extends AppCompatActivity{
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-
-        if(item.getItemId() == R.id.firstOption){
-            filterTasks.setShowUnfinished(false);
-            adapter.updateTasks(filterTasks.getFilteredTasks());
+        if(item.getItemId() == R.id.firstOption){   //show all task
+            adapter.setFilter(true);
             return true;
         }
-        else if(item.getItemId() == R.id.secondOption){
-            filterTasks.setShowUnfinished(true);
-            adapter.updateTasks(filterTasks.getFilteredTasks());
+        else if(item.getItemId() == R.id.secondOption){  //show unfinished task
+            adapter.setFilter(false);
             return true;
         }
-        else if(item.getItemId() == R.id.thirdOption){
-            filterTasks.deleteFinishedTasks();
-            adapter.updateTasks(filterTasks.getFilteredTasks());
+        else if(item.getItemId() == R.id.thirdOption){      //delete finished task
+            List<Task> tasksToRemove =
+                    tasks.stream()
+                    .filter(Task::isDone)
+                    .collect(Collectors.toList());
+            tasks.removeAll(tasksToRemove);
+            adapter.updateTasks(tasks);
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
-
 
     private void setupListeners() {
         binding.fab.setOnClickListener(new View.OnClickListener() {
@@ -94,15 +95,19 @@ public class TaskListActivity extends AppCompatActivity{
         });
     }
 
-        @Override
+    public void onTaskSelected(Task task) {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra(MainActivity.TASK_EXTRA, task);
+        activityLauncher.launch(intent);
+    }
+
+    @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putParcelableArrayList(BUNDLE_TASKS_KEY, new ArrayList<>(tasks));
         super.onSaveInstanceState(outState);
     }
 
-    private void handleIntent(){
-        Task task = getIntent().getParcelableExtra(MainActivity.TASK_EXTRA);
-
+    private void handleIntent() {
         activityLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
@@ -113,29 +118,17 @@ public class TaskListActivity extends AppCompatActivity{
                             for (int i = 0; i < tasks.size(); i++) {
                                 if (tasks.get(i).getId() == taskReceived.getId()) {
                                     tasks.set(i, taskReceived);
-                                    isUpdated = true; //if we update an existing task
+                                    isUpdated = true;
                                     break;
                                 }
                             }
-                            //it means that it's a new task with a new id!
                             if (!isUpdated) {
                                 tasks.add(taskReceived);
                             }
-                            adapter.notifyDataSetChanged();
+                            adapter.updateTasks(tasks);
                         }
                     }
                 }
         );
     }
-
-    // metodo per gestire l'evento del click sulla task
-    public void onTaskSelected(Task task){
-        // parametro inizio attività e fine destinazione
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra(MainActivity.TASK_EXTRA, task);
-        activityLauncher.launch(intent);
-    }
-
-
-
 }
