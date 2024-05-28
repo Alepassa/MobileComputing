@@ -49,11 +49,19 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        restoreSavedInstanceState(savedInstanceState); //restore set
-        ActionBar bar = getSupportActionBar();
-        bar.setTitle("Edit Task");  //set name of the istance
         handleIntent();
+
+        if (savedInstanceState != null) {
+            String description = savedInstanceState.getString("editDescription");
+            binding.editDescription.setText(description);
+            String name = savedInstanceState.getString("editName");
+            binding.editName.setText(name);
+            String date = savedInstanceState.getString("editData");
+            binding.editData.setText(date);
+        }
+
+        ActionBar bar = getSupportActionBar();
+        bar.setTitle("Edit Task");
         setupListeners();
     }
 
@@ -85,19 +93,12 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    @Override
     protected void onSaveInstanceState(@NonNull Bundle saveInstanceState) {
+        //save the state
         saveInstanceState.putString("editDescription", binding.editDescription.getText().toString());
         saveInstanceState.putString("editName", binding.editName.getText().toString());
         saveInstanceState.putString("editData", binding.editData.getText().toString());
         super.onSaveInstanceState(saveInstanceState);
-    }
-    private void restoreSavedInstanceState(Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
-            binding.editDescription.setText(savedInstanceState.getString("editDescription"));
-            binding.editName.setText(savedInstanceState.getString("editName"));
-            binding.editData.setText(savedInstanceState.getString("editData"));
-        }
     }
 
     public Task addOrUpdateTask(View v){
