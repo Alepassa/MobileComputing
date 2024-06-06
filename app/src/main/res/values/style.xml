@@ -1,8 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- res/values/styles.xml -->
 <resources>
-        <style name="CustomEditTextTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-            <item name="colorControlActivated">@color/rosa</item>
-            <item name="colorControlNormal">#000000</item>
-        </style>
+    <!-- Tüm stiller themes.xml dosyasına taşındı -->
 </resources>

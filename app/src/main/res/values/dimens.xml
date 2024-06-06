@@ -1,0 +1,4 @@
+<resources>
+    <dimen name="nav_header_vertical_spacing">16dp</dimen>
+    <!-- Diğer dimension tanımları -->
+</resources>

@@ -8,5 +8,6 @@
     <string name="first_option_menu">Show all tasks</string>
     <string name="second_option_menu">Show unfinished tasks</string>
     <string name="third_option_menu">Delete finished tasks</string>
-
+    <string name="navigation_drawer_open">Open Navigation Drawer</string>
+    <string name="navigation_drawer_close">Close Navigation Drawer</string>
 </resources>

@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
 public class FilteredTasksAdapter extends TaskListAdapter {
 
     private List<Task> originalTasks;
@@ -19,27 +18,34 @@ public class FilteredTasksAdapter extends TaskListAdapter {
     public FilteredTasksAdapter(List<Task> tasks, OnTaskSelectedListener listener) {
         super(new ArrayList<>(tasks), listener);
         this.originalTasks = new ArrayList<>(tasks);
-        this.showAllTasks = true;  //default show all task
+        this.showAllTasks = true;  // Default to show all tasks
     }
 
-    // return all task or just uncompleted tasks
+    // Return all tasks or just uncompleted tasks
     private void filterTasks() {
-        this.tasks = showAllTasks ? new ArrayList<>(originalTasks):
+        this.tasks = showAllTasks ? new ArrayList<>(originalTasks) :
                 originalTasks.stream()
                         .filter(task -> !task.isDone())
                         .collect(Collectors.toList());
         notifyDataSetChanged();
     }
 
-
-    public void setFilter(boolean showAll) {  //true all task, false uncompleted task
+    public void setFilter(boolean showAll) {  // true to show all tasks, false to show uncompleted tasks
         this.showAllTasks = showAll;
         filterTasks();
     }
 
-    public void updateTasks(List<Task> updateTasks) {  //called after a modify of item or new task
+    public void updateTasks(List<Task> updateTasks) {  // Called after a modification of an item or new task
         this.originalTasks = new ArrayList<>(updateTasks);
         filterTasks();
     }
 
+    public List<Task> getCurrentTasks() {  // Return the current filtered list of tasks
+        return new ArrayList<>(tasks);
+    }
+
+    public void removeTasks(List<Task> tasksToRemove) {  // Remove tasks from the list
+        originalTasks.removeAll(tasksToRemove);
+        filterTasks();
+    }
 }
