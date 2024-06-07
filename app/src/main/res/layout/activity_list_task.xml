@@ -32,8 +32,10 @@
             android:layout_marginEnd="20dp"
             app:layout_constraintBottom_toTopOf="@+id/guideline"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/toolbar"
+            app:layout_constraintVertical_bias="1.0"
             tools:listitem="@android:layout/list_content" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -55,6 +57,14 @@
             android:orientation="horizontal"
             app:layout_constraintGuide_percent="0.87" />
 
+        <TextView
+            android:id="@+id/create_task_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Create Task List"
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.navigation.NavigationView
@@ -63,6 +73,9 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         app:headerLayout="@layout/nav_header"
-        app:menu="@menu/drawer_menu" />
+        app:menu="@menu/drawer_menu">
+
+        <!-- Aggiungi TextView per "Create Task List" allineato a sinistra -->
+    </com.google.android.material.navigation.NavigationView>
 
 </androidx.drawerlayout.widget.DrawerLayout>

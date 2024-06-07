@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Beyaz kısımda herhangi bir menü öğesi olmayacak -->
+    <item>
+        android:id="@+id/AddTaskListButton"
+        android:title="@CreateTaskList"
+    </item>
 </menu>

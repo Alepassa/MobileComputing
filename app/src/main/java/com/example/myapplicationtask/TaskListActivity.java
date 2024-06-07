@@ -40,6 +40,7 @@ public class TaskListActivity extends AppCompatActivity implements NavigationVie
     private DrawerLayout drawer;
     private NavigationView navigationView;
     private Menu menu;
+    private boolean isDialogShowing = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,6 +153,9 @@ public class TaskListActivity extends AppCompatActivity implements NavigationVie
     }
 
     private void showCreateTaskListDialog() {
+        if (isDialogShowing) return; // Prevent showing multiple dialogs
+
+        isDialogShowing = true;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Create Task List");
 
@@ -166,12 +170,21 @@ public class TaskListActivity extends AppCompatActivity implements NavigationVie
                 if (!taskListName.isEmpty()) {
                     addTaskListToMenu(taskListName);
                 }
+                isDialogShowing = false; // Reset the flag
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
+                isDialogShowing = false; // Reset the flag
+            }
+        });
+
+        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                isDialogShowing = false; // Reset the flag if the dialog is dismissed
             }
         });
 
