@@ -1,14 +1,12 @@
 package com.example.myapplicationtask;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.DatePicker;
-import android.widget.ImageButton;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import com.example.myapplicationtask.databinding.ActivityMainBinding;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -35,10 +33,6 @@ public class MainActivity extends AppCompatActivity {
             binding.editData.setText(date);
         }
 
-        ActionBar bar = getSupportActionBar();
-        if (bar != null) {
-            bar.setTitle("Edit Task");
-        }
         setupListeners();
     }
 
@@ -65,12 +59,9 @@ public class MainActivity extends AppCompatActivity {
             setResult(RESULT_OK, intent);
             finish();
         });
-
-        ImageButton backButton = findViewById(R.id.back_button);
-        backButton.setOnClickListener(v -> finish());
+        binding.toolbar.findViewById(R.id.back_button).setOnClickListener(v -> onBackPressed());
     }
 
-    @Override
     protected void onSaveInstanceState(@NonNull Bundle saveInstanceState) {
         saveInstanceState.putString("editDescription", binding.editDescription.getText().toString());
         saveInstanceState.putString("editName", binding.editName.getText().toString());
@@ -116,8 +107,11 @@ public class MainActivity extends AppCompatActivity {
             year = Integer.parseInt(divideDate[2]);
         }
 
-        DatePickerDialog dialog = new DatePickerDialog(this, (view, selectedYear, selectedMonth, selectedDay) -> {
-            binding.editData.setText(monthNames[selectedMonth] + " " + selectedDay + ", " + selectedYear);
+        DatePickerDialog dialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int selectedYear, int selectedMonth, int selectedDay) {
+                binding.editData.setText(monthNames[selectedMonth] + " " + selectedDay + ", " + selectedYear);
+            }
         }, year, month, day);
 
         dialog.show();

@@ -2,15 +2,9 @@ package com.example.myapplicationtask;
 
 import java.util.List;
 
-/**
- * Created by thorsten on 23.03.20.
- */
-
 public interface TaskRepository {
-
-    List<Task> loadTasks();
-
+    List<Task> loadTasks(String taskListName);
     void deleteFinishedTasks();
-
-    // TODO: add methods for adding new or updating existing tasks
+    void addTask(String taskListName, Task task);
+    List<String> getTaskLists();
 }

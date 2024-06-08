@@ -9,13 +9,13 @@ import android.view.*;
 import android.widget.EditText;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,7 +30,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class TaskListActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-    private static final String BUNDLE_TASKS_KEY = "task";
+    private static final String BUNDLE_TASKS_KEY = "taskLists";
+    private static final String BUNDLE_CURRENT_TASK_LIST_NAME = "currentTaskListName";
+    private static final String BUNDLE_TOOLBAR_TITLE = "toolbarTitle";
     private static final int SPACE_ITEM = 20;
     private ActivityListTaskBinding binding;
     private Map<String, List<Task>> taskLists;
@@ -64,19 +66,34 @@ public class TaskListActivity extends AppCompatActivity implements NavigationVie
         if (savedInstanceState == null) {
             taskLists = new HashMap<>();
             currentTaskListName = "Default";
-            taskLists.put(currentTaskListName, TaskRepositoryInMemoryImpl.getInstance().loadTasks());
+            taskLists.put(currentTaskListName, new ArrayList<>()); // Avoid loading tasks unnecessarily
+            ActionBar bar = getSupportActionBar();
+            if (bar != null) {
+                bar.setTitle(currentTaskListName);
+            }
         } else {
             taskLists = (Map<String, List<Task>>) savedInstanceState.getSerializable(BUNDLE_TASKS_KEY);
-            currentTaskListName = savedInstanceState.getString("currentTaskListName");
+            currentTaskListName = savedInstanceState.getString(BUNDLE_CURRENT_TASK_LIST_NAME);
+            String toolbarTitle = savedInstanceState.getString(BUNDLE_TOOLBAR_TITLE);
+            ActionBar bar = getSupportActionBar();
+            if (bar != null && toolbarTitle != null) {
+                bar.setTitle(toolbarTitle);
+            }
         }
 
         setupRecyclerView();
         handleIntent();
         setupListeners();
+        populateNavigationMenu(); // Ensure the menu is populated, including "Create Task List"
     }
 
     private void setupRecyclerView() {
-        adapter = new FilteredTasksAdapter(taskLists.get(currentTaskListName), this::onTaskSelected);
+        List<Task> initialTasks = taskLists.get(currentTaskListName);
+        if (initialTasks == null) {
+            initialTasks = new ArrayList<>();
+            taskLists.put(currentTaskListName, initialTasks);
+        }
+        adapter = new FilteredTasksAdapter(initialTasks, this::onTaskSelected);
         RecyclerView listView = binding.listview;
         listView.setLayoutManager(new LinearLayoutManager(this));
         listView.setAdapter(adapter);
@@ -113,11 +130,20 @@ public class TaskListActivity extends AppCompatActivity implements NavigationVie
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        currentTaskListName = item.getTitle().toString();
-        adapter.updateTasks(taskLists.get(currentTaskListName));
-        ActionBar bar = getSupportActionBar();
-        if (bar != null) {
-            bar.setTitle(currentTaskListName);
+        if (item.getItemId() == R.id.create_task_list) {
+            showCreateTaskListDialog();
+        } else {
+            currentTaskListName = item.getTitle().toString();
+            List<Task> tasks = taskLists.get(currentTaskListName);
+            if (tasks == null) {
+                tasks = new ArrayList<>();
+                taskLists.put(currentTaskListName, tasks);
+            }
+            adapter.updateTasks(tasks);
+            ActionBar bar = getSupportActionBar();
+            if (bar != null) {
+                bar.setTitle(currentTaskListName);
+            }
         }
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -133,22 +159,10 @@ public class TaskListActivity extends AppCompatActivity implements NavigationVie
     }
 
     private void setupListeners() {
-        binding.fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent2 = new Intent(TaskListActivity.this, MainActivity.class);
-                intent2.putExtra("taskListName", currentTaskListName);
-                activityLauncher.launch(intent2);
-            }
-        });
-
-        // Create Task List button click listener
-        View headerView = navigationView.getHeaderView(0);
-        headerView.findViewById(R.id.nav_header_title).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showCreateTaskListDialog();
-            }
+        binding.fab.setOnClickListener(v -> {
+            Intent intent2 = new Intent(TaskListActivity.this, MainActivity.class);
+            intent2.putExtra("taskListName", currentTaskListName);
+            activityLauncher.launch(intent2);
         });
     }
 
@@ -163,30 +177,30 @@ public class TaskListActivity extends AppCompatActivity implements NavigationVie
         input.setInputType(InputType.TYPE_CLASS_TEXT);
         builder.setView(input);
 
-        builder.setPositiveButton("Create", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String taskListName = input.getText().toString();
-                if (!taskListName.isEmpty()) {
-                    addTaskListToMenu(taskListName);
+        builder.setPositiveButton("Create", (dialog, which) -> {
+            String taskListName = input.getText().toString();
+            if (!taskListName.isEmpty()) {
+                addTaskListToMenu(taskListName);
+                currentTaskListName = taskListName; // Set the current task list to the new one
+                List<Task> tasks = taskLists.get(taskListName);
+                if (tasks == null) {
+                    tasks = new ArrayList<>();
+                    taskLists.put(taskListName, tasks);
                 }
-                isDialogShowing = false; // Reset the flag
+                adapter.updateTasks(tasks);
+                ActionBar bar = getSupportActionBar();
+                if (bar != null) {
+                    bar.setTitle(taskListName);
+                }
             }
+            isDialogShowing = false; // Reset the flag
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-                isDialogShowing = false; // Reset the flag
-            }
+        builder.setNegativeButton("Cancel", (dialog, which) -> {
+            dialog.cancel();
+            isDialogShowing = false; // Reset the flag
         });
 
-        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                isDialogShowing = false; // Reset the flag if the dialog is dismissed
-            }
-        });
+        builder.setOnDismissListener(dialog -> isDialogShowing = false); // Reset the flag if the dialog is dismissed
 
         builder.show();
     }
@@ -208,8 +222,23 @@ public class TaskListActivity extends AppCompatActivity implements NavigationVie
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putSerializable(BUNDLE_TASKS_KEY, new HashMap<>(taskLists));
-        outState.putString("currentTaskListName", currentTaskListName);
+        outState.putString(BUNDLE_CURRENT_TASK_LIST_NAME, currentTaskListName);
+        ActionBar bar = getSupportActionBar();
+        if (bar != null) {
+            outState.putString(BUNDLE_TOOLBAR_TITLE, bar.getTitle().toString());
+        }
         super.onSaveInstanceState(outState);
+    }
+
+    private void populateNavigationMenu() {
+        menu.clear();
+        MenuItem createTaskListItem = menu.add(Menu.NONE, R.id.create_task_list, Menu.NONE, "Create Task List");
+        createTaskListItem.setIcon(R.drawable.add);
+        for (String taskListName : taskLists.keySet()) {
+            MenuItem item = menu.add(taskListName);
+            item.setIcon(R.drawable.ic_menu_gallery); // Set an icon if needed
+            item.setCheckable(true);
+        }
     }
 
     private void handleIntent() {

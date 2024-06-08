@@ -57,14 +57,6 @@
             android:orientation="horizontal"
             app:layout_constraintGuide_percent="0.87" />
 
-        <TextView
-            android:id="@+id/create_task_list"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Create Task List"
-            android:textColor="@android:color/black"
-            android:textSize="18sp" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.navigation.NavigationView
@@ -73,9 +65,6 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         app:headerLayout="@layout/nav_header"
-        app:menu="@menu/drawer_menu">
-
-        <!-- Aggiungi TextView per "Create Task List" allineato a sinistra -->
-    </com.google.android.material.navigation.NavigationView>
+        app:menu="@menu/drawer_menu" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

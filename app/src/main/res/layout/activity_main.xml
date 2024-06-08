@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/main"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#00F6F4F4"
-        android:backgroundTint="#FBFAFA"
-        android:foregroundTint="#FFFEFE"
-        tools:context=".MainActivity">
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#00F6F4F4"
+    android:backgroundTint="#FBFAFA"
+    android:foregroundTint="#FFFEFE"
+    tools:context=".MainActivity">
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbaer"
+        android:id="@+id/toolbar"
         android:layout_width="0dp"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
@@ -118,7 +119,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.916" />
 
-
     <TextView
         android:id="@+id/editData"
         android:layout_width="wrap_content"
@@ -135,7 +135,7 @@
         android:id="@+id/checkBox2"
         android:layout_width="0dp"
         android:layout_height="48dp"
-        android:button = "@drawable/chechbox_selector"
+        android:button="@drawable/chechbox_selector"
         app:layout_constraintBaseline_toBaselineOf="@+id/textView1"
         app:layout_constraintStart_toStartOf="@+id/guideline" />
 
@@ -158,7 +158,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.4" />
-
 
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/barrier"

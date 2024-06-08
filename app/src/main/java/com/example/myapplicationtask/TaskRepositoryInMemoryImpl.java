@@ -1,20 +1,14 @@
 package com.example.myapplicationtask;
 
-import android.util.Log;
-
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
-/**
- * Created by thorsten on 23.03.20.
- */
+import java.util.Map;
 
 public class TaskRepositoryInMemoryImpl implements TaskRepository {
-
     private static TaskRepositoryInMemoryImpl instance;
 
-    private List<Task> mTasks;
-
+    private Map<String, List<Task>> taskLists;
 
     public static synchronized TaskRepositoryInMemoryImpl getInstance() {
         if (instance == null) {
@@ -23,41 +17,37 @@ public class TaskRepositoryInMemoryImpl implements TaskRepository {
         return instance;
     }
 
-
     private TaskRepositoryInMemoryImpl() {
-        mTasks = new ArrayList<>();
-
-        Task myTask = new Task("Empty the trash");
-        myTask.setDescription("Someone has to get the dirty jobs done...");
-        myTask.setDone(true);
-        myTask.setDate("Feb 28, 2018");
-
-        mTasks.add(myTask);
-        mTasks.add(new Task("Groceries"));
-        mTasks.add(new Task("Call parents"));
-        myTask = new Task("Do Android programming");
-        myTask.setDescription("Nobody said it would be easy!");
-        myTask.setDone(false);
-        myTask.setDate("May 20, 2018");
-        mTasks.add(myTask);
-
-//        for (int i=0; i<40; i++)
-//            mTasks.add(new Task("Task" + i));
+        taskLists = new HashMap<>();
+        // Add default task lists and tasks here for initial testing
+        taskLists.put("Default", new ArrayList<>());
+        taskLists.put("Home", new ArrayList<>());
+        taskLists.get("Default").add(new Task("Sample Task 1", "Description 1", "Feb 20, 2024", false));
+        taskLists.get("Home").add(new Task("Sample Task 2", "Description 2", "Feb 21, 2024", true));
     }
 
     @Override
-    public List<Task> loadTasks() {
-        return mTasks;
+    public List<Task> loadTasks(String taskListName) {
+        return taskLists.getOrDefault(taskListName, new ArrayList<>());
     }
 
     @Override
     public void deleteFinishedTasks() {
-        for (int i=0; i<mTasks.size(); i++) {
-            Task task = mTasks.get(i);
-            if (task.isDone()) {
-                mTasks.remove(task);
-                i--;
-            }
+        for (String key : taskLists.keySet()) {
+            taskLists.get(key).removeIf(Task::isDone);
         }
+    }
+
+    @Override
+    public void addTask(String taskListName, Task task) {
+        List<Task> tasks = taskLists.get(taskListName);
+        if (tasks != null) {
+            tasks.add(task);
+        }
+    }
+
+    @Override
+    public List<String> getTaskLists() {
+        return new ArrayList<>(taskLists.keySet());
     }
 }
