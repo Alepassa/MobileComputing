@@ -73,7 +73,7 @@ public class TaskListActivity extends AppCompatActivity implements NavigationVie
             if (bar != null) {
                 bar.setTitle(currentTaskListName);
             }
-        }else {
+        } else {
             taskLists = (Map<String, List<Task>>) savedInstanceState.getSerializable(BUNDLE_TASKS_KEY);
             currentTaskListName = savedInstanceState.getString(BUNDLE_CURRENT_TASK_LIST_NAME);
             String toolbarTitle = savedInstanceState.getString(BUNDLE_TOOLBAR_TITLE);
@@ -221,14 +221,27 @@ public class TaskListActivity extends AppCompatActivity implements NavigationVie
     }
 
     @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putSerializable(BUNDLE_TASKS_KEY, new HashMap<>(taskLists));
         outState.putString(BUNDLE_CURRENT_TASK_LIST_NAME, currentTaskListName);
         ActionBar bar = getSupportActionBar();
         if (bar != null) {
-            outState.putString(BUNDLE_TOOLBAR_TITLE, bar.getTitle().toString());
+            outState.putString(BUNDLE_TOOLBAR_TITLE            , bar.getTitle().toString());
         }
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        // Restore the state from the saved bundle
+        taskLists = (Map<String, List<Task>>) savedInstanceState.getSerializable(BUNDLE_TASKS_KEY);
+        currentTaskListName = savedInstanceState.getString(BUNDLE_CURRENT_TASK_LIST_NAME);
+        String toolbarTitle = savedInstanceState.getString(BUNDLE_TOOLBAR_TITLE);
+        ActionBar bar = getSupportActionBar();
+        if (bar != null && toolbarTitle != null) {
+            bar.setTitle(toolbarTitle);
+        }
     }
 
     private void populateNavigationMenu() {
@@ -242,7 +255,6 @@ public class TaskListActivity extends AppCompatActivity implements NavigationVie
             item.setCheckable(false);
         }
     }
-
 
     private void handleIntent() {
         activityLauncher = registerForActivityResult(
