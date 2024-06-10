@@ -65,13 +65,15 @@ public class TaskListActivity extends AppCompatActivity implements NavigationVie
 
         if (savedInstanceState == null) {
             taskLists = new HashMap<>();
-            currentTaskListName = "Default";
-            taskLists.put(currentTaskListName, new ArrayList<>()); // Avoid loading tasks unnecessarily
+            currentTaskListName = "Groceries";
+            taskLists.put(currentTaskListName, TaskRepositoryInMemoryImpl.getInstance().loadTasks("Groceries"));
+            taskLists.put("University", TaskRepositoryInMemoryImpl.getInstance().loadTasks("University"));
+
             ActionBar bar = getSupportActionBar();
             if (bar != null) {
                 bar.setTitle(currentTaskListName);
             }
-        } else {
+        }else {
             taskLists = (Map<String, List<Task>>) savedInstanceState.getSerializable(BUNDLE_TASKS_KEY);
             currentTaskListName = savedInstanceState.getString(BUNDLE_CURRENT_TASK_LIST_NAME);
             String toolbarTitle = savedInstanceState.getString(BUNDLE_TOOLBAR_TITLE);
@@ -207,9 +209,8 @@ public class TaskListActivity extends AppCompatActivity implements NavigationVie
 
     private void addTaskListToMenu(String taskListName) {
         taskLists.put(taskListName, new ArrayList<>());
-        MenuItem item = menu.add(taskListName);
-        item.setIcon(R.drawable.ic_menu_gallery); // Set an icon if needed
-        item.setCheckable(true);
+        MenuItem item = menu.add(Menu.NONE, Menu.NONE, Menu.NONE, taskListName);
+        item.setCheckable(false);
     }
 
     public void onTaskSelected(Task task) {
@@ -232,14 +233,16 @@ public class TaskListActivity extends AppCompatActivity implements NavigationVie
 
     private void populateNavigationMenu() {
         menu.clear();
+
         MenuItem createTaskListItem = menu.add(Menu.NONE, R.id.create_task_list, Menu.NONE, "Create Task List");
         createTaskListItem.setIcon(R.drawable.add);
+
         for (String taskListName : taskLists.keySet()) {
             MenuItem item = menu.add(taskListName);
-            item.setIcon(R.drawable.ic_menu_gallery); // Set an icon if needed
-            item.setCheckable(true);
+            item.setCheckable(false);
         }
     }
+
 
     private void handleIntent() {
         activityLauncher = registerForActivityResult(

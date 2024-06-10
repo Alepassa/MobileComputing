@@ -19,11 +19,11 @@ public class TaskRepositoryInMemoryImpl implements TaskRepository {
 
     private TaskRepositoryInMemoryImpl() {
         taskLists = new HashMap<>();
-        // Add default task lists and tasks here for initial testing
-        taskLists.put("Default", new ArrayList<>());
-        taskLists.put("Home", new ArrayList<>());
-        taskLists.get("Default").add(new Task("Sample Task 1", "Description 1", "Feb 20, 2024", false));
-        taskLists.get("Home").add(new Task("Sample Task 2", "Description 2", "Feb 21, 2024", true));
+        taskLists.put("Groceries", new ArrayList<>());
+        taskLists.put("University", new ArrayList<>());
+
+        taskLists.get("Groceries").add(new Task("Buy Milk", "2 liters of milk", "June 22, 2024", false));
+        taskLists.get("Groceries").add(new Task("Buy Bread", "Whole grain bread", "June 23, 2024", false));
     }
 
     @Override
