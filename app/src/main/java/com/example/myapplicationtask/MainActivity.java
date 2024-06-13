@@ -7,7 +7,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.ImageButton;
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import com.example.myapplicationtask.databinding.ActivityMainBinding;
@@ -39,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
             resetFields();
         }
 
+
         setupToolbar();
         setupListeners();
     }
@@ -47,17 +51,11 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // Ekran yönelimine göre backButton kontrolü
-        if (getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE || !isTablet()) {
-            backButton = findViewById(R.id.back_button);
-            if (backButton != null) {
-                backButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        onBackPressed();
-                    }
-                });
-            }
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true); // Show the back button
+            actionBar.setHomeAsUpIndicator(R.drawable.arrow_back); // Set custom back button icon
+            actionBar.setTitle("Task List Detail"); // Set the title to "Task List Detail"
         }
     }
 

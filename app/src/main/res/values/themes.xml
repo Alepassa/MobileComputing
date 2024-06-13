@@ -23,4 +23,9 @@
         <item name="colorControlActivated">@color/rosa</item>
         <item name="colorControlNormal">#000000</item>
     </style>
+
+    <!-- Custom Toolbar Theme -->
+    <style name="CustomToolbarTheme" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="android:textColorPrimary">@color/white</item>
+    </style>
 </resources>

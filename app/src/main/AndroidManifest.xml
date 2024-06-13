@@ -14,9 +14,13 @@
 
         <activity
             android:name=".MainActivity"
-            android:theme="@style/AppTheme"
+            android:theme="@style/Base.Theme.MyApplicationtask"
             android:parentActivityName=".TaskListActivity"
-            android:exported="false" />
+            android:exported="false">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".TaskListActivity" />
+        </activity>
 
         <activity
             android:name=".TaskListActivity"
