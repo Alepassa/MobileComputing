@@ -31,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
             binding.editName.setText(name);
             String date = savedInstanceState.getString("editData");
             binding.editData.setText(date);
+        } else {
+            resetFields();
         }
 
         setupListeners();
@@ -46,6 +48,8 @@ public class MainActivity extends AppCompatActivity {
             binding.checkBox2.setChecked(task.isDone());
             String date = task.getDate();
             binding.editData.setText(date != null ? date : "Date");
+        } else {
+            resetFields();
         }
     }
 
@@ -57,11 +61,13 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra(TASK_EXTRA, taskReturned);
             intent.putExtra("taskListName", taskListName);
             setResult(RESULT_OK, intent);
+            resetFields();  // Reset fields after adding the task
             finish();
         });
         binding.toolbar.findViewById(R.id.back_button).setOnClickListener(v -> onBackPressed());
     }
 
+    @Override
     protected void onSaveInstanceState(@NonNull Bundle saveInstanceState) {
         saveInstanceState.putString("editDescription", binding.editDescription.getText().toString());
         saveInstanceState.putString("editName", binding.editName.getText().toString());
@@ -86,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
         if (!name.isEmpty()) {
             return new Task(name, description, date, isDone);
         }
+
         return null;
     }
 
@@ -115,5 +122,12 @@ public class MainActivity extends AppCompatActivity {
         }, year, month, day);
 
         dialog.show();
+    }
+
+    private void resetFields() {
+        binding.editName.setText("");
+        binding.editDescription.setText("");
+        binding.checkBox2.setChecked(false);
+        binding.editData.setText("Date");
     }
 }

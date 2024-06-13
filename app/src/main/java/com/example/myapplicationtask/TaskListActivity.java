@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplicationtask.databinding.ActivityListTaskBinding;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 
 import java.util.ArrayList;
@@ -29,16 +30,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class TaskListActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+
+public class TaskListActivity extends AppCompatActivity implements
+        TaskListFragment.OnTaskSelectedListener,
+        TaskDetailFragment.OnTaskUpdatedListener,
+        NavigationView.OnNavigationItemSelectedListener {
+
     private static final String BUNDLE_TASKS_KEY = "taskLists";
     private static final String BUNDLE_CURRENT_TASK_LIST_NAME = "currentTaskListName";
     private static final String BUNDLE_TOOLBAR_TITLE = "toolbarTitle";
-    private static final int SPACE_ITEM = 20;
+    static final int SPACE_ITEM = 20;
     private ActivityListTaskBinding binding;
     private Map<String, List<Task>> taskLists;
     private String currentTaskListName;
     private FilteredTasksAdapter adapter;
-    private ActivityResultLauncher<Intent> activityLauncher;
     private DrawerLayout drawer;
     private NavigationView navigationView;
     private Menu menu;
@@ -83,51 +88,34 @@ public class TaskListActivity extends AppCompatActivity implements NavigationVie
             }
         }
 
+        TaskListFragment taskListFragment = (TaskListFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_task_list);
+        if (taskListFragment != null) {
+            taskListFragment.updateTasks(taskLists, currentTaskListName);
+        }
+
         setupRecyclerView();
-        handleIntent();
         setupListeners();
-        populateNavigationMenu(); // Ensure the menu is populated, including "Create Task List"
+        populateNavigationMenu();
     }
 
     private void setupRecyclerView() {
+        adapter = new FilteredTasksAdapter(new ArrayList<>(), task -> {
+            if (task != null) {
+                onTaskSelected(task);
+            }
+        });
+        RecyclerView recyclerView = findViewById(R.id.listview);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(adapter);
+        recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        recyclerView.addItemDecoration(new SpaceItem(SPACE_ITEM));
+
         List<Task> initialTasks = taskLists.get(currentTaskListName);
         if (initialTasks == null) {
             initialTasks = new ArrayList<>();
             taskLists.put(currentTaskListName, initialTasks);
         }
-        adapter = new FilteredTasksAdapter(initialTasks, this::onTaskSelected);
-        RecyclerView listView = binding.listview;
-        listView.setLayoutManager(new LinearLayoutManager(this));
-        listView.setAdapter(adapter);
-        listView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        listView.addItemDecoration(new SpaceItem(SPACE_ITEM));
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.firstOption) {   // show all task
-            adapter.setFilter(true);
-            return true;
-        } else if (item.getItemId() == R.id.secondOption) {  // show unfinished task
-            adapter.setFilter(false);
-            return true;
-        } else if (item.getItemId() == R.id.thirdOption) {      // delete finished task
-            List<Task> tasksToRemove =
-                    taskLists.get(currentTaskListName).stream()
-                            .filter(Task::isDone)
-                            .collect(Collectors.toList());
-            taskLists.get(currentTaskListName).removeAll(tasksToRemove);
-            adapter.updateTasks(taskLists.get(currentTaskListName));
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+        adapter.updateTasks(initialTasks);
     }
 
     @Override
@@ -141,11 +129,15 @@ public class TaskListActivity extends AppCompatActivity implements NavigationVie
                 tasks = new ArrayList<>();
                 taskLists.put(currentTaskListName, tasks);
             }
-            adapter.updateTasks(tasks);
+            TaskListFragment taskListFragment = (TaskListFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_task_list);
+            if (taskListFragment != null) {
+                taskListFragment.updateTasks(taskLists, currentTaskListName);
+            }
             ActionBar bar = getSupportActionBar();
             if (bar != null) {
                 bar.setTitle(currentTaskListName);
             }
+            adapter.updateTasks(tasks);
         }
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -161,15 +153,23 @@ public class TaskListActivity extends AppCompatActivity implements NavigationVie
     }
 
     private void setupListeners() {
-        binding.fab.setOnClickListener(v -> {
-            Intent intent2 = new Intent(TaskListActivity.this, MainActivity.class);
-            intent2.putExtra("taskListName", currentTaskListName);
-            activityLauncher.launch(intent2);
-        });
+        FloatingActionButton fab = findViewById(R.id.fab);
+        if (fab != null) {
+            fab.setOnClickListener(v -> {
+                TaskDetailFragment taskDetailFragment = (TaskDetailFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_task_detail);
+                if (taskDetailFragment != null) {
+                    taskDetailFragment.displayTask(null);
+                } else {
+                    Intent intent = new Intent(TaskListActivity.this, MainActivity.class);
+                    intent.putExtra("taskListName", currentTaskListName);
+                    startActivity(intent);
+                }
+            });
+        }
     }
 
     private void showCreateTaskListDialog() {
-        if (isDialogShowing) return; // Prevent showing multiple dialogs
+        if (isDialogShowing) return;
 
         isDialogShowing = true;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -183,26 +183,30 @@ public class TaskListActivity extends AppCompatActivity implements NavigationVie
             String taskListName = input.getText().toString();
             if (!taskListName.isEmpty()) {
                 addTaskListToMenu(taskListName);
-                currentTaskListName = taskListName; // Set the current task list to the new one
+                currentTaskListName = taskListName;
                 List<Task> tasks = taskLists.get(taskListName);
                 if (tasks == null) {
                     tasks = new ArrayList<>();
                     taskLists.put(taskListName, tasks);
                 }
-                adapter.updateTasks(tasks);
+                TaskListFragment taskListFragment = (TaskListFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_task_list);
+                if (taskListFragment != null) {
+                    taskListFragment.updateTasks(taskLists, currentTaskListName);
+                }
                 ActionBar bar = getSupportActionBar();
                 if (bar != null) {
                     bar.setTitle(taskListName);
                 }
+                adapter.updateTasks(tasks);
             }
-            isDialogShowing = false; // Reset the flag
+            isDialogShowing = false;
         });
         builder.setNegativeButton("Cancel", (dialog, which) -> {
             dialog.cancel();
-            isDialogShowing = false; // Reset the flag
+            isDialogShowing = false;
         });
 
-        builder.setOnDismissListener(dialog -> isDialogShowing = false); // Reset the flag if the dialog is dismissed
+        builder.setOnDismissListener(dialog -> isDialogShowing = false);
 
         builder.show();
     }
@@ -213,11 +217,60 @@ public class TaskListActivity extends AppCompatActivity implements NavigationVie
         item.setCheckable(false);
     }
 
+    @Override
     public void onTaskSelected(Task task) {
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra(MainActivity.TASK_EXTRA, task);
-        intent.putExtra("taskListName", currentTaskListName);
-        activityLauncher.launch(intent);
+        TaskDetailFragment taskDetailFragment = (TaskDetailFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_task_detail);
+        if (taskDetailFragment != null) {
+            taskDetailFragment.displayTask(task);
+        } else {
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra(MainActivity.TASK_EXTRA, task);
+            intent.putExtra("taskListName", currentTaskListName);
+            startActivity(intent);
+        }
+    }
+
+    @Override
+    public void onTaskUpdated(Task task) {
+        if (task != null) {
+            List<Task> tasks = taskLists.get(currentTaskListName);
+            if (tasks != null) {
+                boolean isUpdated = false;
+                for (int i = 0; i < tasks.size(); i++) {
+                    if (tasks.get(i).getId() == task.getId()) {
+                        tasks.set(i, task);
+                        isUpdated = true;
+                        break;
+                    }
+                }
+                if (!isUpdated) {
+                    tasks.add(task);
+                }
+                TaskListFragment taskListFragment = (TaskListFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_task_list);
+                if (taskListFragment != null) {
+                    taskListFragment.updateTasks(taskLists, currentTaskListName);
+                }
+                adapter.updateTasks(tasks);
+            }
+        }
+    }
+
+    public void onTaskListChanged(String taskListName) {
+        currentTaskListName = taskListName;
+        List<Task> tasks = taskLists.get(currentTaskListName);
+        if (tasks == null) {
+            tasks = new ArrayList<>();
+            taskLists.put(currentTaskListName, tasks);
+        }
+        TaskListFragment taskListFragment = (TaskListFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_task_list);
+        if (taskListFragment != null) {
+            taskListFragment.updateTasks(taskLists, currentTaskListName);
+        }
+        ActionBar bar = getSupportActionBar();
+        if (bar != null) {
+            bar.setTitle(taskListName);
+        }
+        adapter.updateTasks(tasks);
     }
 
     @Override
@@ -226,7 +279,7 @@ public class TaskListActivity extends AppCompatActivity implements NavigationVie
         outState.putString(BUNDLE_CURRENT_TASK_LIST_NAME, currentTaskListName);
         ActionBar bar = getSupportActionBar();
         if (bar != null) {
-            outState.putString(BUNDLE_TOOLBAR_TITLE            , bar.getTitle().toString());
+            outState.putString(BUNDLE_TOOLBAR_TITLE, bar.getTitle().toString());
         }
         super.onSaveInstanceState(outState);
     }
@@ -234,7 +287,6 @@ public class TaskListActivity extends AppCompatActivity implements NavigationVie
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        // Restore the state from the saved bundle
         taskLists = (Map<String, List<Task>>) savedInstanceState.getSerializable(BUNDLE_TASKS_KEY);
         currentTaskListName = savedInstanceState.getString(BUNDLE_CURRENT_TASK_LIST_NAME);
         String toolbarTitle = savedInstanceState.getString(BUNDLE_TOOLBAR_TITLE);
@@ -242,6 +294,16 @@ public class TaskListActivity extends AppCompatActivity implements NavigationVie
         if (bar != null && toolbarTitle != null) {
             bar.setTitle(toolbarTitle);
         }
+        TaskListFragment taskListFragment = (TaskListFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_task_list);
+        if (taskListFragment != null) {
+            taskListFragment.updateTasks(taskLists, currentTaskListName);
+        }
+        List<Task> tasks = taskLists.get(currentTaskListName);
+        if (tasks == null) {
+            tasks = new ArrayList<>();
+            taskLists.put(currentTaskListName, tasks);
+        }
+        adapter.updateTasks(tasks);
     }
 
     private void populateNavigationMenu() {
@@ -256,30 +318,30 @@ public class TaskListActivity extends AppCompatActivity implements NavigationVie
         }
     }
 
-    private void handleIntent() {
-        activityLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                        Task taskReceived = result.getData().getParcelableExtra(MainActivity.TASK_EXTRA);
-                        String taskListName = result.getData().getStringExtra("taskListName");
-                        if (taskReceived != null && taskListName != null) {
-                            boolean isUpdated = false;
-                            List<Task> tasks = taskLists.get(taskListName);
-                            for (int i = 0; i < tasks.size(); i++) {
-                                if (tasks.get(i).getId() == taskReceived.getId()) {
-                                    tasks.set(i, taskReceived);
-                                    isUpdated = true;
-                                    break;
-                                }
-                            }
-                            if (!isUpdated) {
-                                tasks.add(taskReceived);
-                            }
-                            adapter.updateTasks(tasks);
-                        }
-                    }
-                }
-        );
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.firstOption) {
+            adapter.setFilter(true);
+            return true;
+        } else if (item.getItemId() == R.id.secondOption) {
+            adapter.setFilter(false);
+            return true;
+        } else if (item.getItemId() == R.id.thirdOption) {
+            List<Task> tasksToRemove =
+                    taskLists.get(currentTaskListName).stream()
+                            .filter(Task::isDone)
+                            .collect(Collectors.toList());
+            taskLists.get(currentTaskListName).removeAll(tasksToRemove);
+            adapter.updateTasks(taskLists.get(currentTaskListName));
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
