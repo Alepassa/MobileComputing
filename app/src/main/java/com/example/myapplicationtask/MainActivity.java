@@ -2,11 +2,14 @@ package com.example.myapplicationtask;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.DatePicker;
+import android.widget.ImageButton;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import com.example.myapplicationtask.databinding.ActivityMainBinding;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -16,6 +19,7 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private Task task;
     private String taskListName;
+    private ImageButton backButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +39,32 @@ public class MainActivity extends AppCompatActivity {
             resetFields();
         }
 
+        setupToolbar();
         setupListeners();
+    }
+
+    private void setupToolbar() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        // Ekran yönelimine göre backButton kontrolü
+        if (getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE || !isTablet()) {
+            backButton = findViewById(R.id.back_button);
+            if (backButton != null) {
+                backButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onBackPressed();
+                    }
+                });
+            }
+        }
+    }
+
+    private boolean isTablet() {
+        return (getResources().getConfiguration().screenLayout
+                & Configuration.SCREENLAYOUT_SIZE_MASK)
+                >= Configuration.SCREENLAYOUT_SIZE_LARGE;
     }
 
     private void handleIntent() {
@@ -64,7 +93,6 @@ public class MainActivity extends AppCompatActivity {
             resetFields();  // Reset fields after adding the task
             finish();
         });
-        binding.toolbar.findViewById(R.id.back_button).setOnClickListener(v -> onBackPressed());
     }
 
     @Override
