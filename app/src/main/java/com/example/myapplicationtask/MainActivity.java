@@ -7,8 +7,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.ImageButton;
-import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -52,11 +50,8 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true); // Show the back button
-            actionBar.setHomeAsUpIndicator(R.drawable.arrow_back); // Set custom back button icon
-            actionBar.setTitle("Task List Detail"); // Set the title to "Task List Detail"
-        }
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setTitle("Task Detail");
     }
 
     private boolean isTablet() {
