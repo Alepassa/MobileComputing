@@ -58,6 +58,14 @@ public class TaskListActivity extends AppCompatActivity implements
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        // Controlla se siamo in modalità tablet landscape
+        boolean isTabletLandscape = getResources().getBoolean(R.bool.isTabletLandscape);
+        if (isTabletLandscape) {
+            if (toolbar != null) {
+                toolbar.setVisibility(View.GONE);
+            }
+        }
+
         drawer = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
