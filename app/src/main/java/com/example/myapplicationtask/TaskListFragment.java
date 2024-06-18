@@ -25,7 +25,7 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
     private FragmentTaskListBinding binding;
     private FilteredTasksAdapter adapter;
     private TaskListFragmentCallbacks listener;
-    private boolean showUnfinishedTasks;
+    private boolean showAllTask=true;
 
 
     public interface TaskListFragmentCallbacks {
@@ -55,7 +55,7 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
 
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean("showUnfinishedTasks", showUnfinishedTasks);
+        outState.putBoolean("showUnfinishedTasks", showAllTask);
     }
 
     @Nullable
@@ -79,8 +79,8 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
         setHasOptionsMenu(true);
 
         if (savedInstanceState != null) {
-            showUnfinishedTasks = savedInstanceState.getBoolean("showUnfinishedTasks", false);
-            adapter.setFilter(showUnfinishedTasks);
+            showAllTask = savedInstanceState.getBoolean("showUnfinishedTasks", false);
+            adapter.setFilter(showAllTask);
         }
 
 
@@ -108,11 +108,11 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.firstOption) {
             adapter.setFilter(true);
-            showUnfinishedTasks = true;
+            showAllTask = true;
 
             return true;
         } else if (item.getItemId() == R.id.secondOption) {
-            showUnfinishedTasks = false;
+            showAllTask = false;
             adapter.setFilter(false);
             return true;
         } else if (item.getItemId() == R.id.thirdOption) {
