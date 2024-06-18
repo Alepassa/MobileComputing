@@ -45,4 +45,8 @@ public class TaskViewModel extends AndroidViewModel {
     public LiveData<List<TaskList>> getAllTaskLists() {
         return allTaskLists;
     }
+
+    public void deleteCompletedTasksByTaskListId(int taskListId) {
+        taskRepository.deleteCompletedTasksByTaskListId(taskListId);
+    }
 }

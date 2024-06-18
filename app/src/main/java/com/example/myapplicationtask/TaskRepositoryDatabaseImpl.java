@@ -96,4 +96,9 @@ public class TaskRepositoryDatabaseImpl implements TaskRepository {
     public LiveData<List<Task>> getTasksByTaskListId(int taskListId) {
         return taskDao.getTasksByTaskListId(taskListId);
     }
+
+    @Override
+    public void deleteCompletedTasksByTaskListId(int taskListId) {
+        executorService.execute(() -> taskDao.deleteCompletedTasksByTaskListId(taskListId));
+    }
 }

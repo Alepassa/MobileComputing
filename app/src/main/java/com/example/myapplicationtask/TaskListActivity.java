@@ -254,7 +254,9 @@ public class TaskListActivity extends AppCompatActivity
 
     @Override
     public void onClearCompletedTasks() {
-        taskViewModel.deleteCompletedTasks();
+        if (currentTaskListId != -1) {
+            taskViewModel.deleteCompletedTasksByTaskListId(currentTaskListId);
+        }
     }
 
     @Override

@@ -16,4 +16,5 @@ public interface TaskRepository {
     void insertTaskList(TaskList taskList);
     LiveData<List<TaskList>> getAllTaskLists();
     LiveData<List<Task>> getTasksByTaskListId(int taskListId); // Add this method
+    void deleteCompletedTasksByTaskListId(int taskListId);
 }

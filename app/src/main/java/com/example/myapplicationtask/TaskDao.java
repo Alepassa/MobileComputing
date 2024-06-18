@@ -32,4 +32,7 @@ public interface TaskDao {
 
     @Query("SELECT * FROM task_table")
     LiveData<List<Task>> getAllTasks();
+
+    @Query("DELETE FROM task_table WHERE mDone = 1 AND taskListId = :taskListId")
+    void deleteCompletedTasksByTaskListId(int taskListId);
 }

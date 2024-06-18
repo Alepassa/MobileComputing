@@ -95,7 +95,6 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
         if (item.getItemId() == R.id.firstOption) {
             adapter.setFilter(true);
             showAllTask = true;
-
             return true;
         } else if (item.getItemId() == R.id.secondOption) {
             showAllTask = false;
@@ -109,6 +108,7 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
         }
         return super.onOptionsItemSelected(item);
     }
+
 
     public void updateTasks(List<Task> tasks) {
         adapter.updateTasks(tasks);
