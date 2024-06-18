@@ -55,11 +55,18 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskVi
         holder.binding.checkBox3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Update the task object's done property
                 task.setDone(holder.binding.checkBox3.isChecked());
             }
         });
+
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onTaskSelected(task);
+            }
+        });
     }
+
+
 
 
     @Override

@@ -188,11 +188,16 @@ public class TaskListActivity extends AppCompatActivity
     public void onTaskSelected(Task task) {
         if (tabletMode) {
             if (taskDetailFragment != null) {
+                Bundle args = new Bundle();
+                args.putParcelable(TaskDetail.TASK_EXTRA, task);
+                args.putInt("taskListId", task.getTaskListId());  // Pass the taskListId
+                taskDetailFragment.setArguments(args);
                 taskDetailFragment.displayTask(task);
             }
         } else {
             Intent intent = new Intent(this, TaskDetail.class);
-            intent.putExtra("TASK_EXTRA", task);
+            intent.putExtra(TaskDetail.TASK_EXTRA, task);
+            intent.putExtra("taskListId", task.getTaskListId());  // Pass the taskListId
             activityLauncher.launch(intent);
         }
     }

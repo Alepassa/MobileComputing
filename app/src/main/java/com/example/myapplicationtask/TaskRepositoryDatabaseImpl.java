@@ -42,9 +42,16 @@ public class TaskRepositoryDatabaseImpl implements TaskRepository {
 
     @Override
     public void update(Task task) {
-        executorService.execute(() -> taskDao.update(task));
+        executorService.execute(() -> {
+            TaskList taskList = taskListDao.getTaskListById(task.getTaskListId());
+            if (taskList != null) {
+                Log.d("TaskRepository", "Updating task: " + task.getShortName() + " in TaskList ID: " + task.getTaskListId());
+                taskDao.update(task);
+            } else {
+                Log.e("TaskRepository", "TaskList with id " + task.getTaskListId() + " does not exist. Cannot update task.");
+            }
+        });
     }
-
     @Override
     public void delete(Task task) {
         executorService.execute(() -> taskDao.delete(task));

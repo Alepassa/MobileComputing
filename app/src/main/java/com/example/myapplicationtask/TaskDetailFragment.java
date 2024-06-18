@@ -48,6 +48,10 @@ public class TaskDetailFragment extends Fragment {
 
         if (getArguments() != null) {
             taskListId = getArguments().getInt("taskListId");
+            Task task = getArguments().getParcelable(TaskDetail.TASK_EXTRA);
+            if (task != null) {
+                displayTask(task);
+            }
             Log.d("TaskDetailFragment", "Received taskListId: " + taskListId);
         } else {
             Log.e("TaskDetailFragment", "No taskListId received");
@@ -97,9 +101,9 @@ public class TaskDetailFragment extends Fragment {
         task.setDescription(binding.editDescription.getText().toString());
         task.setDone(binding.checkBox2.isChecked());
         task.setDate(binding.editData.getText().toString());
-        task.setTaskListId(taskListId); // Set the correct taskListId
+        task.setTaskListId(taskListId);
 
-        if (taskListId == 0) {
+        if (taskListId == -1) {
             Toast.makeText(requireContext(), "Task list ID is invalid. Please select a valid task list.", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -116,6 +120,7 @@ public class TaskDetailFragment extends Fragment {
 
         requireActivity().onBackPressed();
     }
+
 
     private void openDatePickerDialog() {
         final String[] monthNames = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
