@@ -64,27 +64,24 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
                              @Nullable Bundle savedInstanceState) {
         binding = FragmentTaskListBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
-
-        adapter = new FilteredTasksAdapter(new ArrayList<>(), task -> {
-            if (callback != null) {
-                callback.onTaskSelected(task);
-            }
-        });
-
-        binding.listview.setLayoutManager(new LinearLayoutManager(getContext()));
-        binding.listview.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
-        binding.listview.addItemDecoration(new SpaceItem(20));
-        binding.listview.setAdapter(adapter);
-
+        setupRecyclerView();
         setHasOptionsMenu(true);
 
+        // save the status of filter when there is a rotation
         if (savedInstanceState != null) {
             showAllTask = savedInstanceState.getBoolean("showUnfinishedTasks", false);
             adapter.setFilter(showAllTask);
         }
 
-
         return view;
+    }
+
+    private void setupRecyclerView() {
+        adapter = new FilteredTasksAdapter(new ArrayList<>(), this::onTaskSelected);
+        binding.listview.setLayoutManager(new LinearLayoutManager(getContext()));
+        binding.listview.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+        binding.listview.addItemDecoration(new SpaceItem(20));
+        binding.listview.setAdapter(adapter);
     }
 
     @Override
@@ -92,17 +89,6 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
         inflater.inflate(R.menu.main_menu, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
-
-    public void updateTasks(List<Task> tasks) {
-        adapter.updateTasks(tasks);
-    }
-
-
-    @Override
-    public void onTaskSelected(Task task) {
-        callback.onTaskSelected(task);
-    }
-
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -123,6 +109,20 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
         }
         return super.onOptionsItemSelected(item);
     }
+
+    public void updateTasks(List<Task> tasks) {
+        adapter.updateTasks(tasks);
+    }
+
+    @Override
+    public void onTaskSelected(Task task) {
+        if (callback != null) {
+            callback.onTaskSelected(task);
+        }
+    }
+
+
+
 
 }
 

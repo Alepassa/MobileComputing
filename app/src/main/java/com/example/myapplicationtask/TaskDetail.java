@@ -26,14 +26,18 @@ public class TaskDetail extends AppCompatActivity {
         setContentView(binding.getRoot());
 
 
+        setupFragment();
+    }
+
+    private void setupFragment() {
         FragmentManager fm = getSupportFragmentManager();
         taskDetailFragment = (TaskDetailFragment) fm.findFragmentById(R.id.taskDetailContainer);
 
         if (taskDetailFragment == null) {
-            FragmentTransaction t = fm.beginTransaction();
             taskDetailFragment = TaskDetailFragment.newInstance();
-            t.add(R.id.taskDetailContainer, taskDetailFragment);
-            t.commit();
+            FragmentTransaction transaction = fm.beginTransaction();
+            transaction.add(R.id.taskDetailContainer, taskDetailFragment);
+            transaction.commit();
         }
     }
 

@@ -104,7 +104,6 @@ public class TaskDetailFragment extends Fragment {
 
         if (taskName.isEmpty()) {
             Log.d("TaskDetailFragment", "Task name cannot be empty");
-            // Mostra un messaggio all'utente, ad esempio:
             Toast.makeText(requireContext(), "Task name cannot be empty", Toast.LENGTH_SHORT).show();
             return;
         }
