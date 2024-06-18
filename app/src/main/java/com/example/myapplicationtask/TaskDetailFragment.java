@@ -1,53 +1,52 @@
 package com.example.myapplicationtask;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import java.util.Arrays;
+import java.util.Calendar;
+import com.example.myapplicationtask.databinding.FragmentTaskDetailBinding;
 
-import com.example.myapplicationtask.databinding.ActivityMainBinding;
+
+import android.app.DatePickerDialog;
+import android.content.Context;
+import android.os.Bundle;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.DatePicker;
+import android.widget.Toast;
 
 import java.util.Arrays;
 import java.util.Calendar;
+import com.example.myapplicationtask.databinding.FragmentTaskDetailBinding;
 
 public class TaskDetailFragment extends Fragment {
 
-    private ActivityMainBinding binding;
+    private FragmentTaskDetailBinding binding;
     private Task task;
-    private OnTaskUpdatedListener callback;
+    private OnTaskUpdatedListener callbacks;
 
-    public interface OnTaskUpdatedListener {
-        void onTaskUpdated(Task task);
+    public static TaskDetailFragment newInstance() {
+        return new TaskDetailFragment();
     }
 
     @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        if (context instanceof OnTaskUpdatedListener) {
-            callback = (OnTaskUpdatedListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnTaskUpdatedListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        callback = null;
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        binding = ActivityMainBinding.inflate(inflater, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        binding = FragmentTaskDetailBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
 
@@ -57,76 +56,101 @@ public class TaskDetailFragment extends Fragment {
         setupListeners();
     }
 
+    public interface OnTaskUpdatedListener {
+        void onUpdateTask(Task updatedTask);
+    }
+
+    public void setOnTaskUpdatedListener(OnTaskUpdatedListener listener) {
+        this.callbacks = listener;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        callbacks = null;
+    }
+
     public void displayTask(Task task) {
-        this.task = task;
-        if (task != null) {
-            binding.editName.setText(task.getShortName());
-            binding.editDescription.setText(task.getDescription());
-            binding.checkBox2.setChecked(task.isDone());
-            String date = task.getDate();
-            binding.editData.setText(date != null ? date : "Date");
+        if (task == null) {
+            this.task = new Task();
+            clearTaskDetails();
         } else {
-            clearFields();
+            this.task = task;
+            populateTaskDetails(task);
         }
     }
 
-    public void clearFields() {
+    private void setupListeners() {
+        binding.editData.setOnClickListener(v -> openDatePickerDialog());
+        binding.fab1.setOnClickListener(v -> updateTask());
+    }
+
+    private void clearTaskDetails() {
         binding.editName.setText("");
         binding.editDescription.setText("");
         binding.checkBox2.setChecked(false);
         binding.editData.setText("Date");
     }
 
-    private void setupListeners() {
-        binding.editData.setOnClickListener(v -> openDialog());
-        binding.fab1.setOnClickListener(v -> {
-            Task taskReturned = addOrUpdateTask();
-            if (callback != null) {
-                callback.onTaskUpdated(taskReturned);
-            }
-            clearFields();  // Clear fields after adding/updating the task
-        });
+    private void populateTaskDetails(Task task) {
+        binding.editName.setText(task.getShortName());
+        binding.editDescription.setText(task.getDescription());
+        binding.checkBox2.setChecked(task.isDone());
+        binding.editData.setText(task.getDate() != null && !task.getDate().isEmpty() ? task.getDate() : "Date");
     }
 
-    public Task addOrUpdateTask() {
-        String name = binding.editName.getText().toString();
-        String description = binding.editDescription.getText().toString();
-        boolean isDone = binding.checkBox2.isChecked();
-        String date = binding.editData.getText().toString();
+    private void updateTask() {
+        String taskName = binding.editName.getText().toString().trim();
 
-        if (task != null) {
-            task.setShortName(name);
-            task.setDescription(description);
-            task.setDone(isDone);
-            task.setDate(date);
-            return task;
+        if (taskName.isEmpty()) {
+            Log.d("TaskDetailFragment", "Task name cannot be empty");
+            // Mostra un messaggio all'utente, ad esempio:
+            Toast.makeText(requireContext(), "Task name cannot be empty", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (task == null) {
+            Log.d("TaskDetailFragment", "Creating a new task");
+            task = new Task();
         } else {
-            return new Task(name, description, date, isDone);
+            Log.d("TaskDetailFragment", "Updating task: " + task.toString());
+        }
+        task.setShortName(binding.editName.getText().toString());
+        task.setDescription(binding.editDescription.getText().toString());
+        task.setDone(binding.checkBox2.isChecked());
+        task.setDate(binding.editData.getText().toString());
+
+        if (callbacks != null) {
+            callbacks.onUpdateTask(task);
+        }
+
+        if (getActivity() instanceof TaskDetail) {
+            ((TaskDetail) getActivity()).returnUpdatedTask(task);
         }
     }
 
-    private void openDialog() {
+    private void openDatePickerDialog() {
         final String[] monthNames = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
         Calendar calendar = Calendar.getInstance();
         int year, month, day;
-        String currentData = binding.editData.getText().toString();
+        String currentDate = binding.editData.getText().toString();
 
-        if (currentData.equals("Date")) {
+        if (currentDate.equals("Date")) {
             year = calendar.get(Calendar.YEAR);
             month = calendar.get(Calendar.MONTH);
             day = calendar.get(Calendar.DAY_OF_MONTH);
         } else {
-            String[] divideDate = currentData.split(" ");
-            month = Arrays.asList(monthNames).indexOf(divideDate[0]);
-            day = Integer.parseInt(divideDate[1].replace(",", ""));
-            year = Integer.parseInt(divideDate[2]);
+            String[] dividedDate = currentDate.split(" ");
+            month = Arrays.asList(monthNames).indexOf(dividedDate[0]);
+            day = Integer.parseInt(dividedDate[1].replace(",", ""));
+            year = Integer.parseInt(dividedDate[2]);
         }
 
-        DatePickerDialog dialog = new DatePickerDialog(getContext(), (view, selectedYear, selectedMonth, selectedDay) -> {
+        DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(), (DatePicker view, int selectedYear, int selectedMonth, int selectedDay) -> {
             binding.editData.setText(monthNames[selectedMonth] + " " + selectedDay + ", " + selectedYear);
         }, year, month, day);
 
-        dialog.show();
+        datePickerDialog.show();
     }
 }

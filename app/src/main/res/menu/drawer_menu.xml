@@ -4,9 +4,6 @@
         android:id="@+id/create_task_list"
         android:title="Create Task List"
         android:icon="@drawable/add" />
-    <group android:id="@+id/categories_group">
-        <!-- item will be added dinamicly -->!
-    </group>
 
 
 </menu>

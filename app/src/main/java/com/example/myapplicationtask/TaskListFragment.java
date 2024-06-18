@@ -1,46 +1,49 @@
 package com.example.myapplicationtask;
 
-
-import static com.example.myapplicationtask.TaskListActivity.SPACE_ITEM;
-
 import android.content.Context;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import com.example.myapplicationtask.databinding.FragmentTaskListBinding;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-public class TaskListFragment extends Fragment {
 
-    private RecyclerView recyclerView;
+public class TaskListFragment extends Fragment implements TaskListAdapter.OnTaskSelectedListener {
+
+    private FragmentTaskListBinding binding;
     private FilteredTasksAdapter adapter;
-    private Map<String, List<Task>> taskLists;
-    private String currentTaskListName;
+    private TaskListFragmentCallbacks listener;
+    private boolean showUnfinishedTasks;
 
-    public interface OnTaskSelectedListener {
+
+    public interface TaskListFragmentCallbacks {
         void onTaskSelected(Task task);
+
+        void onClearCompletedTasks();
     }
 
-    private OnTaskSelectedListener callback;
+    private TaskListFragmentCallbacks callback;
 
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        if (context instanceof OnTaskSelectedListener) {
-            callback = (OnTaskSelectedListener) context;
+        if (context instanceof TaskListFragmentCallbacks) {
+            callback = (TaskListFragmentCallbacks) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnTaskSelectedListener");
+                    + " must implement TaskListFragmentCallbacks");
         }
     }
 
@@ -50,32 +53,76 @@ public class TaskListFragment extends Fragment {
         callback = null;
     }
 
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("showUnfinishedTasks", showUnfinishedTasks);
+    }
+
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_task_list, container, false);
-        recyclerView = view.findViewById(R.id.listview);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
-        recyclerView.addItemDecoration(new SpaceItem(TaskListActivity.SPACE_ITEM));
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        binding = FragmentTaskListBinding.inflate(inflater, container, false);
+        View view = binding.getRoot();
+
         adapter = new FilteredTasksAdapter(new ArrayList<>(), task -> {
             if (callback != null) {
                 callback.onTaskSelected(task);
             }
         });
-        recyclerView.setAdapter(adapter);
+
+        binding.listview.setLayoutManager(new LinearLayoutManager(getContext()));
+        binding.listview.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+        binding.listview.addItemDecoration(new SpaceItem(20));
+        binding.listview.setAdapter(adapter);
+
+        setHasOptionsMenu(true);
+
+        if (savedInstanceState != null) {
+            showUnfinishedTasks = savedInstanceState.getBoolean("showUnfinishedTasks", false);
+            adapter.setFilter(showUnfinishedTasks);
+        }
+
+
         return view;
     }
 
-    public void updateTasks(Map<String, List<Task>> taskLists, String currentTaskListName) {
-        this.taskLists = taskLists;
-        this.currentTaskListName = currentTaskListName;
-        List<Task> tasks = taskLists.get(currentTaskListName);
-        if (tasks == null) {
-            tasks = new ArrayList<>();
-            taskLists.put(currentTaskListName, tasks);
-        }
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.main_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    public void updateTasks(List<Task> tasks) {
         adapter.updateTasks(tasks);
     }
+
+
+    @Override
+    public void onTaskSelected(Task task) {
+        callback.onTaskSelected(task);
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.firstOption) {
+            adapter.setFilter(true);
+            showUnfinishedTasks = true;
+
+            return true;
+        } else if (item.getItemId() == R.id.secondOption) {
+            showUnfinishedTasks = false;
+            adapter.setFilter(false);
+            return true;
+        } else if (item.getItemId() == R.id.thirdOption) {
+            if (callback != null) {
+                callback.onClearCompletedTasks();
+            }
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 }
 

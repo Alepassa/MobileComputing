@@ -35,6 +35,13 @@ public class  Task implements Parcelable {
         this.mDone= mDone;
     }
 
+    public Task() {
+        this.mId = MAX_ID++;
+        this.mShortName = "";
+        this.mDescription = "";
+        this.mDate = "";
+        this.mDone = false;
+    }
 
 
     protected Task(Parcel in) {

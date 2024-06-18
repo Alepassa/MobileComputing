@@ -18,7 +18,7 @@ public class FilteredTasksAdapter extends TaskListAdapter {
     public FilteredTasksAdapter(List<Task> tasks, OnTaskSelectedListener listener) {
         super(new ArrayList<>(tasks), listener);
         this.originalTasks = new ArrayList<>(tasks);
-        this.showAllTasks = true;  // Default to show all tasks
+        this.showAllTasks = true;
     }
 
     // Return all tasks or just uncompleted tasks
@@ -40,12 +40,4 @@ public class FilteredTasksAdapter extends TaskListAdapter {
         filterTasks();
     }
 
-    public List<Task> getCurrentTasks() {  // Return the current filtered list of tasks
-        return new ArrayList<>(tasks);
-    }
-
-    public void removeTasks(List<Task> tasksToRemove) {  // Remove tasks from the list
-        originalTasks.removeAll(tasksToRemove);
-        filterTasks();
-    }
 }

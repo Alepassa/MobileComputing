@@ -23,6 +23,7 @@ public class TaskRepositoryInMemoryImpl implements TaskRepository {
         taskLists.put("University", new ArrayList<>());
 
         taskLists.get("Groceries").add(new Task("Buy Milk", "2 liters of milk", "June 22, 2024", false));
+        taskLists.get("Groceries").add(new Task("Buy Chocolate", "", "", false));
         taskLists.get("Groceries").add(new Task("Buy Bread", "Whole grain bread", "June 23, 2024", false));
     }
 
@@ -32,18 +33,8 @@ public class TaskRepositoryInMemoryImpl implements TaskRepository {
     }
 
     @Override
-    public void deleteFinishedTasks() {
-        for (String key : taskLists.keySet()) {
-            taskLists.get(key).removeIf(Task::isDone);
-        }
-    }
-
-    @Override
-    public void addTask(String taskListName, Task task) {
-        List<Task> tasks = taskLists.get(taskListName);
-        if (tasks != null) {
-            tasks.add(task);
-        }
+    public void saveTasks(String taskListName, List<Task> tasks) {
+        taskLists.put(taskListName, tasks); // Salvataggio delle task nel repository
     }
 
     @Override

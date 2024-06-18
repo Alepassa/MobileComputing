@@ -1,20 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/primaryColor"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="26dp"
-    android:gravity="bottom">
+    android:padding="16dp"
+    android:background="@color/purple_500">
 
     <TextView
         android:id="@+id/nav_header_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:clickable="false"
-        android:focusable="false"
         android:text="Task List"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textColor="@android:color/white"
         android:textSize="24sp" />
+
 </LinearLayout>

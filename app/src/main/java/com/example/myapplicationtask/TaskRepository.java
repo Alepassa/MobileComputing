@@ -4,7 +4,6 @@ import java.util.List;
 
 public interface TaskRepository {
     List<Task> loadTasks(String taskListName);
-    void deleteFinishedTasks();
-    void addTask(String taskListName, Task task);
+    void saveTasks(String taskListName, List<Task> tasks); // Definizione del metodo per salvare le task
     List<String> getTaskLists();
 }
