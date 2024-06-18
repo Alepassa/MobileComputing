@@ -10,8 +10,6 @@ public interface TaskRepository {
     LiveData<List<Task>> getAllTasks();
     Task getTaskById(int id);
     void deleteCompletedTasks();
-
-    List<Task> loadTasks(String taskListName);
-    void saveTasks(String taskListName, List<Task> tasks);
-    List<String> getTaskLists();
+    LiveData<List<String>> getTaskLists();
+    LiveData<List<Task>> loadTasks(String taskListName);
 }

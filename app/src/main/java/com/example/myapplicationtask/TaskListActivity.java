@@ -1,7 +1,6 @@
 package com.example.myapplicationtask;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,24 +20,19 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplicationtask.databinding.ActivityListTaskBinding;
-import com.example.myapplicationtask.databinding.NavHeaderBinding;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 public class TaskListActivity extends AppCompatActivity
         implements TaskListFragment.TaskListFragmentCallbacks,
@@ -49,13 +43,13 @@ public class TaskListActivity extends AppCompatActivity
     private ActionBarDrawerToggle toggle;
     private Toolbar toolbar;
     private ActivityListTaskBinding binding;
+    private String currentTaskListName;
+    private TaskListFragment taskListFragment;
+    private TaskDetailFragment taskDetailFragment;
     private TaskRepository taskRepository;
     private boolean tabletMode;
     private Menu menu;
-    private TaskListFragment taskListFragment;
-    private TaskDetailFragment taskDetailFragment;
 
-    private static final String STATE_TASK_LISTS = "task_lists_state";
     private static final String STATE_CURRENT_TASK_LIST = "current_task_list_state";
     private ActivityResultLauncher<Intent> activityLauncher;
 
@@ -66,15 +60,21 @@ public class TaskListActivity extends AppCompatActivity
         setContentView(binding.getRoot());
         handleIntent();
         initializeRepository();
+        initializeTaskLists(savedInstanceState);
         initializeUI();
         setupFragments();
-
-        // Test data
-        testDatabaseOperations();
     }
 
     private void initializeRepository() {
         taskRepository = new TaskRepositoryDatabaseImpl(getApplication());
+    }
+
+    private void initializeTaskLists(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            currentTaskListName = savedInstanceState.getString(STATE_CURRENT_TASK_LIST);
+        } else {
+            currentTaskListName = ""; // Default list name if none exists
+        }
     }
 
     private void initializeUI() {
@@ -94,7 +94,7 @@ public class TaskListActivity extends AppCompatActivity
                 Log.d("TaskListActivity", "FAB clicked");
                 if (!tabletMode) {
                     Intent intent = new Intent(TaskListActivity.this, TaskDetail.class);
-                    intent.putExtra("taskListName", "default");
+                    intent.putExtra("taskListName", currentTaskListName);
                     activityLauncher.launch(intent); // Use the registered launcher
                 } else {
                     if (taskDetailFragment != null) {
@@ -115,9 +115,17 @@ public class TaskListActivity extends AppCompatActivity
     }
 
     private void populateMenuWithTaskLists() {
-        menu.clear();
-
-        menu.add(Menu.NONE, R.id.create_task_list, Menu.NONE, "Create Task List").setIcon(R.drawable.add);
+        taskRepository.getTaskLists().observe(this, new Observer<List<String>>() {
+            @Override
+            public void onChanged(List<String> taskListNames) {
+                menu.clear();
+                menu.add(Menu.NONE, R.id.create_task_list, Menu.NONE, "Create Task List").setIcon(R.drawable.add);
+                for (String taskListName : taskListNames) {
+                    MenuItem item = menu.add(taskListName);
+                    item.setCheckable(false);
+                }
+            }
+        });
     }
 
     private void setupFragments() {
@@ -147,30 +155,40 @@ public class TaskListActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-        loadAndDisplayTasks();
+        if (!currentTaskListName.isEmpty()) {
+            loadAndDisplayTasks(currentTaskListName);
+        }
     }
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
+        outState.putString(STATE_CURRENT_TASK_LIST, currentTaskListName);
     }
 
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
+        currentTaskListName = savedInstanceState.getString(STATE_CURRENT_TASK_LIST);
     }
 
-    private void loadAndDisplayTasks() {
-        taskRepository.getAllTasks().observe(this, tasks -> {
-            taskListFragment.updateTasks(tasks);
-            updateActionBarTitle("Task List");
+    private void loadAndDisplayTasks(String taskListName) {
+        taskRepository.loadTasks(taskListName).observe(this, new Observer<List<Task>>() {
+            @Override
+            public void onChanged(List<Task> tasks) {
+                // Only update tasks in the fragment if the list name is not empty
+                if (!taskListName.isEmpty()) {
+                    taskListFragment.updateTasks(tasks);
+                }
+                updateActionBarTitle(taskListName);
+            }
         });
     }
 
-    private void updateActionBarTitle(String title) {
+    private void updateActionBarTitle(String taskListName) {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
-            actionBar.setTitle(title);
+            actionBar.setTitle(taskListName);
         }
     }
 
@@ -191,6 +209,15 @@ public class TaskListActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.create_task_list) {
             showCreateTaskListDialog();
+        } else {
+            String selectedTaskList = item.getTitle().toString();
+            currentTaskListName = selectedTaskList;
+            loadAndDisplayTasks(currentTaskListName);
+
+            //reset when category changes
+            if (tabletMode && taskDetailFragment != null) {
+                taskDetailFragment.displayTask(null);
+            }
         }
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -214,22 +241,32 @@ public class TaskListActivity extends AppCompatActivity
 
     private void handleNewTaskListCreation(String newTaskListName) {
         if (!newTaskListName.isEmpty()) {
-            Task task = new Task(newTaskListName);
-            taskRepository.insert(task);
-            loadAndDisplayTasks();
+            Task newTaskList = new Task(newTaskListName, "", "", false); // Create a dummy task for new task list
+            taskRepository.insert(newTaskList); // Insert the new task list into the database
+        } else {
+            showErrorForTaskListCreation(newTaskListName);
         }
+    }
+
+    private void showErrorForTaskListCreation(String taskListName) {
+        AlertDialog.Builder errorBuilder = new AlertDialog.Builder(this);
+        if (taskListName.isEmpty()) {
+            errorBuilder.setMessage("Task list name cannot be empty");
+        } else {
+            errorBuilder.setMessage("Task list name already exists");
+        }
+        errorBuilder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
+        errorBuilder.show();
     }
 
     @Override
     public void onClearCompletedTasks() {
         taskRepository.deleteCompletedTasks();
-        loadAndDisplayTasks();
     }
 
     @Override
     public void onUpdateTask(Task updatedTask) {
         taskRepository.update(updatedTask);
-        loadAndDisplayTasks();
     }
 
     private void handleIntent() {
@@ -238,22 +275,17 @@ public class TaskListActivity extends AppCompatActivity
                 result -> {
                     if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                         Task taskReceived = result.getData().getParcelableExtra(TaskDetail.TASK_EXTRA);
+                        Log.d("TaskListActivity", "Result received. Task: " + (taskReceived != null ? taskReceived.toString() : "null"));
                         if (taskReceived != null) {
+                            Log.d("TaskListActivity", "Received task: " + taskReceived.toString());
                             taskRepository.update(taskReceived);
-                            loadAndDisplayTasks();
+                        } else {
+                            Log.d("TaskListActivity", "Task is null");
                         }
+                    } else {
+                        Log.d("TaskListActivity", "Result not OK or data is null");
                     }
                 }
         );
-    }
-
-    private void testDatabaseOperations() {
-        Task sampleTask1 = new Task("Sample Task 1", "Description for task 1", "2024-06-19", false);
-        Task sampleTask2 = new Task("Sample Task 2", "Description for task 2", "2024-06-20", true);
-
-        taskRepository.insert(sampleTask1);
-        taskRepository.insert(sampleTask2);
-
-        loadAndDisplayTasks();
     }
 }

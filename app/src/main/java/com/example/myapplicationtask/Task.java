@@ -1,9 +1,11 @@
 package com.example.myapplicationtask;
 
-import androidx.room.Entity;
-import androidx.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
 
 @Entity(tableName = "task_table")
 public class Task implements Parcelable {
@@ -15,16 +17,16 @@ public class Task implements Parcelable {
     private String mDate;
     private boolean mDone;
 
-    public Task(String shortName) {
-        this.mShortName = shortName;
-    }
-    public Task(String shortName, String mDescription, String mDate, Boolean mDone) {
-        this.mShortName = shortName;
-        this.mDescription= mDescription;
+    // Room'un kullanmasını istediğimiz kurucu
+    public Task(int mId, String mShortName, String mDescription, String mDate, boolean mDone) {
+        this.mId = mId;
+        this.mShortName = mShortName;
+        this.mDescription = mDescription;
         this.mDate = mDate;
-        this.mDone= mDone;
+        this.mDone = mDone;
     }
 
+    // Parametresiz kurucu
     public Task() {
         this.mShortName = "";
         this.mDescription = "";
@@ -32,6 +34,20 @@ public class Task implements Parcelable {
         this.mDone = false;
     }
 
+    @Ignore
+    public Task(String shortName) {
+        this.mShortName = shortName;
+    }
+
+    @Ignore
+    public Task(String shortName, String mDescription, String mDate, boolean mDone) {
+        this.mShortName = shortName;
+        this.mDescription = mDescription;
+        this.mDate = mDate;
+        this.mDone = mDone;
+    }
+
+    @Ignore
     protected Task(Parcel in) {
         mId = in.readInt();
         mShortName = in.readString();
@@ -66,6 +82,8 @@ public class Task implements Parcelable {
         }
     };
 
+    // Getter and Setter methods
+
     public int getId() {
         return mId;
     }
@@ -82,20 +100,20 @@ public class Task implements Parcelable {
         this.mShortName = shortName;
     }
 
-    public void setDate(String mDate) {
-        this.mDate = mDate;
-    }
-
-    public String getDate() {
-        return mDate;
-    }
-
     public String getDescription() {
         return mDescription;
     }
 
     public void setDescription(String description) {
         this.mDescription = description;
+    }
+
+    public String getDate() {
+        return mDate;
+    }
+
+    public void setDate(String date) {
+        this.mDate = date;
     }
 
     public boolean isDone() {
