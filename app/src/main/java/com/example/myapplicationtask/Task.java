@@ -1,22 +1,14 @@
 package com.example.myapplicationtask;
 
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+@Entity(tableName = "task_table")
+public class Task implements Parcelable {
 
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.GregorianCalendar;
-
-/**
- * Created by thorsten on 21.03.20.
- */
-
-public class  Task implements Parcelable {
-
-    // simple ID generator
-    private static int MAX_ID = 0;
-
+    @PrimaryKey(autoGenerate = true)
     private int mId;
     private String mShortName;
     private String mDescription;
@@ -24,11 +16,9 @@ public class  Task implements Parcelable {
     private boolean mDone;
 
     public Task(String shortName) {
-        this.mId = MAX_ID++;
         this.mShortName = shortName;
     }
     public Task(String shortName, String mDescription, String mDate, Boolean mDone) {
-        this.mId = MAX_ID++;
         this.mShortName = shortName;
         this.mDescription= mDescription;
         this.mDate = mDate;
@@ -36,13 +26,11 @@ public class  Task implements Parcelable {
     }
 
     public Task() {
-        this.mId = MAX_ID++;
         this.mShortName = "";
         this.mDescription = "";
         this.mDate = "";
         this.mDone = false;
     }
-
 
     protected Task(Parcel in) {
         mId = in.readInt();
@@ -79,7 +67,11 @@ public class  Task implements Parcelable {
     };
 
     public int getId() {
-        return this.mId;
+        return mId;
+    }
+
+    public void setId(int id) {
+        this.mId = id;
     }
 
     public String getShortName() {
@@ -102,11 +94,9 @@ public class  Task implements Parcelable {
         return mDescription;
     }
 
-
     public void setDescription(String description) {
         this.mDescription = description;
     }
-
 
     public boolean isDone() {
         return mDone;
@@ -128,6 +118,4 @@ public class  Task implements Parcelable {
         }
         return false;
     }
-
-
 }

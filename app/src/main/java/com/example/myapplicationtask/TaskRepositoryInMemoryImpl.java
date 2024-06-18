@@ -1,5 +1,6 @@
 package com.example.myapplicationtask;
 
+import androidx.lifecycle.LiveData;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,11 +35,42 @@ public class TaskRepositoryInMemoryImpl implements TaskRepository {
 
     @Override
     public void saveTasks(String taskListName, List<Task> tasks) {
-        taskLists.put(taskListName, tasks); // Salvataggio delle task nel repository
+        taskLists.put(taskListName, tasks);
     }
 
     @Override
     public List<String> getTaskLists() {
         return new ArrayList<>(taskLists.keySet());
+    }
+
+    @Override
+    public void insert(Task task) {
+        // Not implemented for in-memory repository
+    }
+
+    @Override
+    public void update(Task task) {
+        // Not implemented for in-memory repository
+    }
+
+    @Override
+    public void delete(Task task) {
+        // Not implemented for in-memory repository
+    }
+
+    @Override
+    public Task getTaskById(int id) {
+        // Not implemented for in-memory repository
+        return null;
+    }
+
+    @Override
+    public LiveData<List<Task>> getAllTasks() {
+        throw new UnsupportedOperationException("getAllTasks is not supported for in-memory repository");
+    }
+
+    @Override
+    public void deleteCompletedTasks() {
+        // Not implemented for in-memory repository
     }
 }
