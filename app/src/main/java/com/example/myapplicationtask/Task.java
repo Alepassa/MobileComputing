@@ -4,10 +4,14 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
-@Entity(tableName = "task_table")
+@Entity(tableName = "task_table", foreignKeys = @ForeignKey(entity = TaskList.class,
+        parentColumns = "id",
+        childColumns = "taskListId",
+        onDelete = ForeignKey.CASCADE))
 public class Task implements Parcelable {
 
     @PrimaryKey(autoGenerate = true)
@@ -16,35 +20,32 @@ public class Task implements Parcelable {
     private String mDescription;
     private String mDate;
     private boolean mDone;
+    private int taskListId;
 
-    // Room'un kullanmasını istediğimiz kurucu
-    public Task(int mId, String mShortName, String mDescription, String mDate, boolean mDone) {
+    public Task(int mId, String mShortName, String mDescription, String mDate, boolean mDone, int taskListId) {
         this.mId = mId;
         this.mShortName = mShortName;
         this.mDescription = mDescription;
         this.mDate = mDate;
         this.mDone = mDone;
+        this.taskListId = taskListId;
     }
 
-    // Parametresiz kurucu
+    @Ignore
+    public Task(String shortName, String mDescription, String mDate, boolean mDone, int taskListId) {
+        this.mShortName = shortName;
+        this.mDescription = mDescription;
+        this.mDate = mDate;
+        this.mDone = mDone;
+        this.taskListId = taskListId;
+    }
+
+    @Ignore
     public Task() {
         this.mShortName = "";
         this.mDescription = "";
         this.mDate = "";
         this.mDone = false;
-    }
-
-    @Ignore
-    public Task(String shortName) {
-        this.mShortName = shortName;
-    }
-
-    @Ignore
-    public Task(String shortName, String mDescription, String mDate, boolean mDone) {
-        this.mShortName = shortName;
-        this.mDescription = mDescription;
-        this.mDate = mDate;
-        this.mDone = mDone;
     }
 
     @Ignore
@@ -54,6 +55,7 @@ public class Task implements Parcelable {
         mDescription = in.readString();
         mDate = in.readString();
         mDone = in.readByte() != 0;
+        taskListId = in.readInt();
     }
 
     @Override
@@ -63,6 +65,7 @@ public class Task implements Parcelable {
         dest.writeString(mDescription);
         dest.writeString(mDate);
         dest.writeByte((byte) (mDone ? 1 : 0));
+        dest.writeInt(taskListId);
     }
 
     @Override
@@ -81,8 +84,6 @@ public class Task implements Parcelable {
             return new Task[size];
         }
     };
-
-    // Getter and Setter methods
 
     public int getId() {
         return mId;
@@ -122,6 +123,14 @@ public class Task implements Parcelable {
 
     public void setDone(boolean done) {
         this.mDone = done;
+    }
+
+    public int getTaskListId() {
+        return taskListId;
+    }
+
+    public void setTaskListId(int taskListId) {
+        this.taskListId = taskListId;
     }
 
     @Override

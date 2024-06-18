@@ -10,35 +10,39 @@ import java.util.List;
 
 public class TaskViewModel extends AndroidViewModel {
     private TaskRepository taskRepository;
-    private LiveData<List<Task>> allTasks;
+    private LiveData<List<TaskList>> allTaskLists;
 
     public TaskViewModel(@NonNull Application application) {
         super(application);
         taskRepository = new TaskRepositoryDatabaseImpl(application);
-        allTasks = taskRepository.getAllTasks();
+        allTaskLists = taskRepository.getAllTaskLists();
     }
 
-    public void insert(Task task) {
+    public void insertTask(Task task) {
         taskRepository.insert(task);
     }
 
-    public void update(Task task) {
+    public void updateTask(Task task) {
         taskRepository.update(task);
     }
 
-    public void delete(Task task) {
+    public void deleteTask(Task task) {
         taskRepository.delete(task);
-    }
-
-    public LiveData<List<Task>> getAllTasks() {
-        return allTasks;
-    }
-
-    public Task getTaskById(int id) {
-        return taskRepository.getTaskById(id);
     }
 
     public void deleteCompletedTasks() {
         taskRepository.deleteCompletedTasks();
+    }
+
+    public LiveData<List<Task>> getTasksByTaskListId(int taskListId) {
+        return taskRepository.getTasksByTaskListId(taskListId);
+    }
+
+    public void insertTaskList(TaskList taskList) {
+        taskRepository.insertTaskList(taskList);
+    }
+
+    public LiveData<List<TaskList>> getAllTaskLists() {
+        return allTaskLists;
     }
 }

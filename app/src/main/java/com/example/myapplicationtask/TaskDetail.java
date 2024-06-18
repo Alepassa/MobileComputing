@@ -4,10 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -18,6 +14,7 @@ public class TaskDetail extends AppCompatActivity {
     public static final String TASK_EXTRA = "TASK_EXTRA";
     private ActivityMainBinding binding;
     private TaskDetailFragment taskDetailFragment;
+    private int taskListId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +22,8 @@ public class TaskDetail extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        Intent intent = getIntent();
+        taskListId = intent.getIntExtra("taskListId", -1);
 
         setupFragment();
     }
@@ -35,6 +34,9 @@ public class TaskDetail extends AppCompatActivity {
 
         if (taskDetailFragment == null) {
             taskDetailFragment = TaskDetailFragment.newInstance();
+            Bundle args = new Bundle();
+            args.putInt("taskListId", taskListId);
+            taskDetailFragment.setArguments(args);
             FragmentTransaction transaction = fm.beginTransaction();
             transaction.add(R.id.taskDetailContainer, taskDetailFragment);
             transaction.commit();
@@ -51,19 +53,16 @@ public class TaskDetail extends AppCompatActivity {
         if (task != null && taskDetailFragment != null) {
             taskDetailFragment.displayTask(task);
 
-            ActionBar actionBar = getSupportActionBar();
-            if (actionBar != null) {
-                actionBar.setTitle("Task Detail: " + task.getShortName());
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setTitle("Task Detail: " + task.getShortName());
             }
         }
     }
 
-
     public void returnUpdatedTask(Task updatedTask) {
         Intent resultIntent = new Intent();
-        resultIntent.putExtra(TaskDetail.TASK_EXTRA, updatedTask);
-        setResult(RESULT_OK, resultIntent);
+        resultIntent.putExtra(TASK_EXTRA, updatedTask);
+        setResult(Activity.RESULT_OK, resultIntent);
         finish();
     }
 }
-

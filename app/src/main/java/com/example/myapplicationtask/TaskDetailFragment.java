@@ -1,9 +1,6 @@
 package com.example.myapplicationtask;
 
-import android.app.Activity;
 import android.app.DatePickerDialog;
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -13,39 +10,32 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import java.util.Arrays;
-import java.util.Calendar;
-import com.example.myapplicationtask.databinding.FragmentTaskDetailBinding;
-
-
-import android.app.DatePickerDialog;
-import android.content.Context;
-import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.Toast;
 
+import com.example.myapplicationtask.databinding.FragmentTaskDetailBinding;
+
 import java.util.Arrays;
 import java.util.Calendar;
-import com.example.myapplicationtask.databinding.FragmentTaskDetailBinding;
 
 public class TaskDetailFragment extends Fragment {
 
     private FragmentTaskDetailBinding binding;
     private Task task;
+    private TaskViewModel taskViewModel;
     private OnTaskUpdatedListener callbacks;
+    private int taskListId;
+
+    public interface OnTaskUpdatedListener {
+        void onUpdateTask(Task updatedTask);
+    }
 
     public static TaskDetailFragment newInstance() {
         return new TaskDetailFragment();
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentTaskDetailBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -53,36 +43,29 @@ public class TaskDetailFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        taskViewModel = new TaskViewModel(requireActivity().getApplication());
         setupListeners();
-    }
 
-    public interface OnTaskUpdatedListener {
-        void onUpdateTask(Task updatedTask);
-    }
-
-    public void setOnTaskUpdatedListener(OnTaskUpdatedListener listener) {
-        this.callbacks = listener;
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        callbacks = null;
-    }
-
-    public void displayTask(Task task) {
-        if (task == null) {
-            this.task = new Task();
-            clearTaskDetails();
+        if (getArguments() != null) {
+            taskListId = getArguments().getInt("taskListId");
+            Log.d("TaskDetailFragment", "Received taskListId: " + taskListId);
         } else {
-            this.task = task;
-            populateTaskDetails(task);
+            Log.e("TaskDetailFragment", "No taskListId received");
         }
     }
 
     private void setupListeners() {
         binding.editData.setOnClickListener(v -> openDatePickerDialog());
-        binding.fab1.setOnClickListener(v -> updateTask());
+        binding.fab1.setOnClickListener(v -> saveTask());
+    }
+
+    public void displayTask(Task task) {
+        this.task = task;
+        if (task == null) {
+            clearTaskDetails();
+        } else {
+            populateTaskDetails(task);
+        }
     }
 
     private void clearTaskDetails() {
@@ -99,33 +82,39 @@ public class TaskDetailFragment extends Fragment {
         binding.editData.setText(task.getDate() != null && !task.getDate().isEmpty() ? task.getDate() : "Date");
     }
 
-    private void updateTask() {
+    private void saveTask() {
         String taskName = binding.editName.getText().toString().trim();
 
         if (taskName.isEmpty()) {
-            Log.d("TaskDetailFragment", "Task name cannot be empty");
             Toast.makeText(requireContext(), "Task name cannot be empty", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (task == null) {
-            Log.d("TaskDetailFragment", "Creating a new task");
             task = new Task();
-        } else {
-            Log.d("TaskDetailFragment", "Updating task: " + task.toString());
         }
         task.setShortName(binding.editName.getText().toString());
         task.setDescription(binding.editDescription.getText().toString());
         task.setDone(binding.checkBox2.isChecked());
         task.setDate(binding.editData.getText().toString());
+        task.setTaskListId(taskListId); // Set the correct taskListId
+
+        if (taskListId == 0) {
+            Toast.makeText(requireContext(), "Task list ID is invalid. Please select a valid task list.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (task.getId() == 0) {
+            taskViewModel.insertTask(task);
+        } else {
+            taskViewModel.updateTask(task);
+        }
 
         if (callbacks != null) {
             callbacks.onUpdateTask(task);
         }
 
-        if (getActivity() instanceof TaskDetail) {
-            ((TaskDetail) getActivity()).returnUpdatedTask(task);
-        }
+        requireActivity().onBackPressed();
     }
 
     private void openDatePickerDialog() {
@@ -151,5 +140,15 @@ public class TaskDetailFragment extends Fragment {
         }, year, month, day);
 
         datePickerDialog.show();
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        callbacks = null;
+    }
+
+    public void setOnTaskUpdatedListener(OnTaskUpdatedListener listener) {
+        this.callbacks = listener;
     }
 }

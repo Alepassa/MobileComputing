@@ -24,15 +24,12 @@ public interface TaskDao {
     @Query("DELETE FROM task_table WHERE mDone = 1")
     void deleteCompletedTasks();
 
-    @Query("SELECT * FROM task_table ORDER BY mId ASC")
-    LiveData<List<Task>> getAllTasks();
+    @Query("SELECT * FROM task_table WHERE taskListId = :taskListId ORDER BY mId ASC")
+    LiveData<List<Task>> getTasksByTaskListId(int taskListId);
 
     @Query("SELECT * FROM task_table WHERE mId = :id")
     Task getTaskById(int id);
 
-    @Query("SELECT DISTINCT mShortName FROM task_table")
-    LiveData<List<String>> getTaskLists();
-
-    @Query("SELECT * FROM task_table WHERE mShortName = :taskListName")
-    LiveData<List<Task>> loadTasks(String taskListName);
+    @Query("SELECT * FROM task_table")
+    LiveData<List<Task>> getAllTasks();
 }
