@@ -33,6 +33,7 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskVi
     @NonNull
     @Override
     public TaskViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        Log.d("TaskListAdapter", "onCreateViewHolder called");
         TaskListItemBinding binding = TaskListItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
         return new TaskViewHolder(binding);
     }
@@ -40,6 +41,7 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskVi
     @Override
     public void onBindViewHolder(@NonNull TaskViewHolder holder, int position) {
         Task task = tasks.get(position);
+        Log.d("TaskListAdapter", "onBindViewHolder for position: " + position + ", task ID: " + task.getId());
         holder.bind(task);
     }
 
@@ -57,21 +59,20 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskVi
         }
 
         public void bind(Task task) {
-            Log.d("TaskListAdapter", "bind: Task " + task.getId() + " isChecked: " + binding.checkBox3.isChecked());
-
+            Log.d("TaskViewHolder", "Binding task ID: " + task.getId() + ", Name: " + task.getShortName() + ", isChecked: " + task.isDone());
             binding.TaskNameTextView.setText(task.getShortName());
-            binding.checkBox3.setChecked(task.isDone());
+            binding.checkBox3.setChecked(task.isDone()); // Assicurati che il checkbox rifletta lo stato del task corrente
 
             binding.getRoot().setOnClickListener(v -> {
-                Log.d("TaskListAdapter", "Root view clicked for Task: " + task.getId());
+                Log.d("TaskViewHolder", "Task clicked: " + task.getId());
                 listener.onTaskSelected(task);
             });
 
             binding.checkBox3.setOnClickListener(v -> {
-                Log.d("TaskListAdapter", "Checkbox clicked for Task: " + task.getId() + ", isChecked: " + binding.checkBox3.isChecked());
                 boolean isChecked = binding.checkBox3.isChecked();
                 task.setDone(isChecked);
-                listener.onTaskStatusChanged(task); // Notify listener of status change
+                Log.d("TaskViewHolder", "Checkbox clicked for Task: " + task.getId() + ", isChecked: " + isChecked);
+                listener.onTaskStatusChanged(task); // Notifica il listener del cambiamento di stato
             });
         }
     }
