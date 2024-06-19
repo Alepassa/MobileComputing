@@ -55,7 +55,20 @@ public class TaskListActivity extends AppCompatActivity
         initializeViewModel();
         initializeUI();
         setupFragments();
-        createExampleTaskListAndTasks();
+        createInitialTaskLists();
+
+        taskViewModel.getAllTaskLists().observe(this, new Observer<List<TaskList>>() {
+            @Override
+            public void onChanged(List<TaskList> taskLists) {
+                if (!taskLists.isEmpty()) {
+                    TaskList firstTaskList = taskLists.get(0);
+                    currentTaskListId = firstTaskList.getId();
+                    loadAndDisplayTasks(currentTaskListId);
+                    updateActionBarTitle(currentTaskListId);
+                    taskViewModel.getAllTaskLists().removeObserver(this);
+                }
+            }
+        });
     }
 
     private void initializeViewModel() {
@@ -295,39 +308,33 @@ public class TaskListActivity extends AppCompatActivity
         );
     }
 
-    private void createExampleTaskListAndTasks() {
+    private void createInitialTaskLists() {
         taskViewModel.getAllTaskLists().observe(this, new Observer<List<TaskList>>() {
             @Override
             public void onChanged(List<TaskList> taskLists) {
-                TaskList exampleTaskList = null;
-                for (TaskList taskList : taskLists) {
-                    if (taskList.getName().equals("Example Task List")) {
-                        exampleTaskList = taskList;
-                        break;
-                    }
-                }
-                if (exampleTaskList == null) {
-                    exampleTaskList = new TaskList("Example Task List");
-                    taskViewModel.insertTaskList(exampleTaskList);
-                    taskViewModel.getAllTaskLists().removeObserver(this); // Remove the observer to prevent repeated insertions
-                }
-            }
-        });
+                TaskList groceriesTaskList = null;
+                TaskList universityTaskList = null;
 
-        taskViewModel.getAllTaskLists().observe(this, new Observer<List<TaskList>>() {
-            @Override
-            public void onChanged(List<TaskList> taskLists) {
                 for (TaskList taskList : taskLists) {
-                    if (taskList.getName().equals("Example Task List")) {
-                        int exampleTaskListId = taskList.getId();
-                        Task task1 = new Task("Example Task 1", "Description for Task 1", "Jan 1, 2023", false, exampleTaskListId);
-                        Task task2 = new Task("Example Task 2", "Description for Task 2", "Jan 2, 2023", false, exampleTaskListId);
-                        taskViewModel.insertTask(task1);
-                        taskViewModel.insertTask(task2);
-                        break;
+                    if (taskList.getName().equals("Groceries")) {
+                        groceriesTaskList = taskList;
+                    } else if (taskList.getName().equals("University")) {
+                        universityTaskList = taskList;
                     }
                 }
+
+                if (groceriesTaskList == null) {
+                    groceriesTaskList = new TaskList("Groceries");
+                    taskViewModel.insertTaskList(groceriesTaskList);
+                }
+                if (universityTaskList == null) {
+                    universityTaskList = new TaskList("University");
+                    taskViewModel.insertTaskList(universityTaskList);
+                }
+
+                taskViewModel.getAllTaskLists().removeObserver(this); // Remove the observer to prevent repeated insertions
             }
         });
     }
+
 }
