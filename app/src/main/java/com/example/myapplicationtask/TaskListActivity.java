@@ -51,6 +51,11 @@ public class TaskListActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         binding = ActivityListTaskBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        if (savedInstanceState != null) {
+            currentTaskListId = savedInstanceState.getInt(STATE_CURRENT_TASK_LIST, -1);
+        }
+
         handleIntent();
         initializeViewModel();
         initializeUI();
@@ -60,7 +65,7 @@ public class TaskListActivity extends AppCompatActivity
         taskViewModel.getAllTaskLists().observe(this, new Observer<List<TaskList>>() {
             @Override
             public void onChanged(List<TaskList> taskLists) {
-                if (!taskLists.isEmpty()) {
+                if (currentTaskListId == -1 && !taskLists.isEmpty()) {
                     TaskList firstTaskList = taskLists.get(0);
                     currentTaskListId = firstTaskList.getId();
                     loadAndDisplayTasks(currentTaskListId);
@@ -336,5 +341,4 @@ public class TaskListActivity extends AppCompatActivity
             }
         });
     }
-
 }
