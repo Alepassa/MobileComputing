@@ -20,4 +20,8 @@ public interface TaskListDao {
 
     @Query("SELECT * FROM task_list_table WHERE id = :taskListId LIMIT 1")
     TaskList getTaskListById(int taskListId);
+
+    @Query("DELETE FROM task_list_table WHERE id = :taskListId")
+    void deleteTaskListById(int taskListId);
+
 }

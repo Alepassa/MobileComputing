@@ -19,7 +19,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.myapplicationtask.databinding.ActivityListTaskBinding;
@@ -43,6 +42,7 @@ public class TaskListActivity extends AppCompatActivity
     private TaskViewModel taskViewModel;
     private boolean tabletMode;
     private Menu menu;
+    private NavigationView navigationView;
     private ActivityResultLauncher<Intent> activityLauncher;
     private int currentTaskListId = -1;
 
@@ -55,7 +55,6 @@ public class TaskListActivity extends AppCompatActivity
         if (savedInstanceState != null) {
             currentTaskListId = savedInstanceState.getInt(STATE_CURRENT_TASK_LIST, -1);
             Log.d("TaskListActivity", "Restored Task List ID from savedInstanceState: " + currentTaskListId);
-
         }
 
         handleIntent();
@@ -63,7 +62,6 @@ public class TaskListActivity extends AppCompatActivity
         initializeUI();
         setupFragments();
         createInitialTaskLists();
-
         observeTaskLists();
     }
 
@@ -75,7 +73,7 @@ public class TaskListActivity extends AppCompatActivity
         toolbar = binding.toolbar;
         setSupportActionBar(toolbar);
         drawer = binding.drawerLayout;
-        NavigationView navigationView = binding.navView;
+        navigationView = binding.navView;
         navigationView.setNavigationItemSelectedListener(this);
         setupDrawerToggle();
 
@@ -125,7 +123,6 @@ public class TaskListActivity extends AppCompatActivity
 
             for (TaskList taskList : taskLists) {
                 MenuItem item = menu.add(Menu.NONE, taskList.getId(), Menu.NONE, taskList.getName());
-
                 item.setCheckable(true);
             }
         });
@@ -230,13 +227,12 @@ public class TaskListActivity extends AppCompatActivity
             Log.d("TaskListActivity", "Current Task List ID set to: " + currentTaskListId);
 
             loadAndDisplayTasks(currentTaskListId);
-            // Aggiorna il fragment TaskDetailFragment se si è in modalità tablet
             if (tabletMode && taskDetailFragment != null) {
-                taskDetailFragment.updateTaskListId(currentTaskListId);
                 taskDetailFragment.displayTask(null);
+                Bundle args = new Bundle();
+                args.putInt("taskListId", currentTaskListId);
+                taskDetailFragment.setArguments(args);
             }
-            loadAndDisplayTasks(currentTaskListId);
-
         }
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -367,9 +363,32 @@ public class TaskListActivity extends AppCompatActivity
         });
     }
 
+    private void showDeleteTaskListDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Delete Task List")
+                .setMessage("Do you really want to delete this task list?")
+                .setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                    taskViewModel.deleteTaskListById(currentTaskListId);
+                    currentTaskListId = -1;
+                    updateActionBarTitle(currentTaskListId);
+                    loadAndDisplayTasks(currentTaskListId);
+                })
+                .setNegativeButton(android.R.string.no, null)
+                .show();
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         taskViewModel.getAllTaskLists().removeObservers(this);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.action_delete_task_list) {
+            showDeleteTaskListDialog();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

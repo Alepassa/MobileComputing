@@ -108,4 +108,9 @@ public class TaskRepositoryDatabaseImpl implements TaskRepository {
     public void deleteCompletedTasksByTaskListId(int taskListId) {
         executorService.execute(() -> taskDao.deleteCompletedTasksByTaskListId(taskListId));
     }
+    @Override
+    public void deleteTaskListById(int taskListId) {
+        executorService.execute(() -> taskListDao.deleteTaskListById(taskListId));
+    }
+
 }
