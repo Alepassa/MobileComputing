@@ -230,12 +230,13 @@ public class TaskListActivity extends AppCompatActivity
             Log.d("TaskListActivity", "Current Task List ID set to: " + currentTaskListId);
 
             loadAndDisplayTasks(currentTaskListId);
+            // Aggiorna il fragment TaskDetailFragment se si è in modalità tablet
             if (tabletMode && taskDetailFragment != null) {
+                taskDetailFragment.updateTaskListId(currentTaskListId);
                 taskDetailFragment.displayTask(null);
-                Bundle args = new Bundle();
-                args.putInt("taskListId", currentTaskListId);
-                taskDetailFragment.setArguments(args);
             }
+            loadAndDisplayTasks(currentTaskListId);
+
         }
         drawer.closeDrawer(GravityCompat.START);
         return true;

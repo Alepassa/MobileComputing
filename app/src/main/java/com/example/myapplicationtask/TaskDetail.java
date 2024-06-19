@@ -3,6 +3,7 @@ package com.example.myapplicationtask;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 
 import androidx.appcompat.widget.Toolbar;
@@ -35,14 +36,17 @@ public class TaskDetail extends AppCompatActivity {
 
         setupToolbar();
 
-        if (savedInstanceState != null) {
-            taskListId = savedInstanceState.getInt("taskListId", -1);
-            task = savedInstanceState.getParcelable("task");
-        } else {
+        // Recupera i dati solo se savedInstanceState è null
+        if (savedInstanceState == null) {
             Intent intent = getIntent();
             taskListId = intent.getIntExtra("taskListId", -1);
             task = intent.getParcelableExtra(TASK_EXTRA);
+        } else {
+            taskListId = savedInstanceState.getInt("taskListId", -1);
+            task = savedInstanceState.getParcelable("task");
         }
+
+        Log.d("TaskDetail", "Received taskListId in Activity: " + taskListId);
 
         setupFragment();
     }
@@ -53,10 +57,15 @@ public class TaskDetail extends AppCompatActivity {
 
         if (taskDetailFragment == null) {
             taskDetailFragment = TaskDetailFragment.newInstance();
-            Bundle args = new Bundle();
-            args.putInt("taskListId", taskListId);
-            args.putParcelable(TASK_EXTRA, task);
-            taskDetailFragment.setArguments(args);
+
+            // Passa i dati come argomenti al fragment solo se taskListId è valido
+            if (taskListId != -1) {
+                Bundle args = new Bundle();
+                args.putInt("taskListId", taskListId);
+                args.putParcelable(TASK_EXTRA, task);
+                taskDetailFragment.setArguments(args);
+            }
+
             FragmentTransaction transaction = fm.beginTransaction();
             transaction.add(R.id.taskDetailContainer, taskDetailFragment);
             transaction.commit();
@@ -65,11 +74,9 @@ public class TaskDetail extends AppCompatActivity {
 
     public void setupToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
-        if (toolbar != null) {
-            setSupportActionBar(toolbar);
-            getSupportActionBar().setTitle("Task Detail");
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("Task Detail");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override

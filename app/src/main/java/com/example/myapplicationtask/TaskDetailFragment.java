@@ -46,15 +46,18 @@ public class TaskDetailFragment extends Fragment {
         taskViewModel = new TaskViewModel(requireActivity().getApplication());
         setupListeners();
 
-        if (getArguments() != null) {
-            taskListId = getArguments().getInt("taskListId");
-            Task task = getArguments().getParcelable(TaskDetail.TASK_EXTRA);
+        Bundle args = getArguments();
+        if (args != null) {
+            taskListId = args.getInt("taskListId", -1);
+            task = args.getParcelable(TaskDetail.TASK_EXTRA);
             if (task != null) {
                 displayTask(task);
+            } else {
+                Log.e("TaskDetailFragment", "Task object is null");
             }
             Log.d("TaskDetailFragment", "Received taskListId: " + taskListId);
         } else {
-            Log.e("TaskDetailFragment", "No taskListId received");
+            Log.e("TaskDetailFragment", "No arguments received");
         }
     }
 
@@ -103,7 +106,8 @@ public class TaskDetailFragment extends Fragment {
         task.setDate(binding.editData.getText().toString());
         task.setTaskListId(taskListId);
 
-        Log.d("TaskDetailFragment", "Saving task: " + task.toString()); // Log task details
+        Log.d("TaskDetailFragment", "Saving task IN TASKLIST: " + taskListId);
+
 
         if (taskListId == -1) {
             Toast.makeText(requireContext(), "Task list ID is invalid. Please select a valid task list.", Toast.LENGTH_SHORT).show();
@@ -161,5 +165,8 @@ public class TaskDetailFragment extends Fragment {
 
     public void setOnTaskUpdatedListener(OnTaskUpdatedListener listener) {
         this.callbacks = listener;
+    }
+    public void updateTaskListId(int taskListId) {
+        this.taskListId = taskListId;
     }
 }
