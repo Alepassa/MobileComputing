@@ -13,11 +13,19 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.example.myapplicationtask.databinding.ActivityMainBinding;
 
+import android.os.Bundle;
+import androidx.appcompat.widget.Toolbar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import com.example.myapplicationtask.databinding.ActivityMainBinding;
+
 public class TaskDetail extends AppCompatActivity {
     public static final String TASK_EXTRA = "TASK_EXTRA";
     private ActivityMainBinding binding;
     private TaskDetailFragment taskDetailFragment;
     private int taskListId;
+    private Task task;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,17 +33,23 @@ public class TaskDetail extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Check if the toolbar is present and set it up as the ActionBar if it is
         Toolbar toolbar = findViewById(R.id.toolbar);
         if (toolbar != null) {
             setSupportActionBar(toolbar);
             if (getSupportActionBar() != null) {
-                getSupportActionBar().setDisplayHomeAsUpEnabled(true); // Enable back button
+                getSupportActionBar().setTitle("Task Detail");
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             }
         }
 
-        Intent intent = getIntent();
-        taskListId = intent.getIntExtra("taskListId", -1);
+        if (savedInstanceState != null) {
+            taskListId = savedInstanceState.getInt("taskListId", -1);
+            task = savedInstanceState.getParcelable("task");
+        } else {
+            Intent intent = getIntent();
+            taskListId = intent.getIntExtra("taskListId", -1);
+            task = intent.getParcelableExtra(TASK_EXTRA);
+        }
 
         setupFragment();
     }
@@ -48,6 +62,7 @@ public class TaskDetail extends AppCompatActivity {
             taskDetailFragment = TaskDetailFragment.newInstance();
             Bundle args = new Bundle();
             args.putInt("taskListId", taskListId);
+            args.putParcelable(TASK_EXTRA, task);
             taskDetailFragment.setArguments(args);
             FragmentTransaction transaction = fm.beginTransaction();
             transaction.add(R.id.taskDetailContainer, taskDetailFragment);
@@ -56,25 +71,15 @@ public class TaskDetail extends AppCompatActivity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-
-        Intent intent = getIntent();
-        Task task = intent.getParcelableExtra(TASK_EXTRA);
-
-        if (task != null && taskDetailFragment != null) {
-            taskDetailFragment.displayTask(task);
-
-            if (getSupportActionBar() != null) {
-                getSupportActionBar().setTitle("Task Detail: " + task.getShortName());
-            }
-        }
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("taskListId", taskListId);
+        outState.putParcelable("task", task);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            // Navigate back to the TaskListActivity
             finish();
             return true;
         }

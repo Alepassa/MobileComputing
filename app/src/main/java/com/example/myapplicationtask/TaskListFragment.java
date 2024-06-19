@@ -76,6 +76,7 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
         adapter = new FilteredTasksAdapter(new ArrayList<>(), this);
         binding.listview.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.listview.addItemDecoration(new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL));
+        binding.listview.addItemDecoration(new SpaceItem(20));
         binding.listview.setAdapter(adapter);
     }
 
