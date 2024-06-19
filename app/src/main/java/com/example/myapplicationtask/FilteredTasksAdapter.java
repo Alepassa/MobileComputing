@@ -40,4 +40,5 @@ public class FilteredTasksAdapter extends TaskListAdapter {
         filterTasks();
     }
 
+
 }

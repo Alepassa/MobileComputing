@@ -20,6 +20,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.myapplicationtask.databinding.ActivityListTaskBinding;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -32,8 +33,9 @@ public class TaskListActivity extends AppCompatActivity
         TaskDetailFragment.OnTaskUpdatedListener,
         NavigationView.OnNavigationItemSelectedListener {
 
+    private static final String STATE_CURRENT_TASK_LIST = "current_task_list_state";
+
     private DrawerLayout drawer;
-    private ActionBarDrawerToggle toggle;
     private Toolbar toolbar;
     private ActivityListTaskBinding binding;
     private TaskListFragment taskListFragment;
@@ -41,8 +43,6 @@ public class TaskListActivity extends AppCompatActivity
     private TaskViewModel taskViewModel;
     private boolean tabletMode;
     private Menu menu;
-
-    private static final String STATE_CURRENT_TASK_LIST = "current_task_list_state";
     private ActivityResultLauncher<Intent> activityLauncher;
     private int currentTaskListId = -1;
 
@@ -62,22 +62,11 @@ public class TaskListActivity extends AppCompatActivity
         setupFragments();
         createInitialTaskLists();
 
-        taskViewModel.getAllTaskLists().observe(this, new Observer<List<TaskList>>() {
-            @Override
-            public void onChanged(List<TaskList> taskLists) {
-                if (currentTaskListId == -1 && !taskLists.isEmpty()) {
-                    TaskList firstTaskList = taskLists.get(0);
-                    currentTaskListId = firstTaskList.getId();
-                    loadAndDisplayTasks(currentTaskListId);
-                    updateActionBarTitle(currentTaskListId);
-                    taskViewModel.getAllTaskLists().removeObserver(this);
-                }
-            }
-        });
+        observeTaskLists();
     }
 
     private void initializeViewModel() {
-        taskViewModel = new TaskViewModel(getApplication());
+        taskViewModel = new ViewModelProvider(this).get(TaskViewModel.class);
     }
 
     private void initializeUI() {
@@ -118,22 +107,19 @@ public class TaskListActivity extends AppCompatActivity
     }
 
     private void setupDrawerToggle() {
-        toggle = new ActionBarDrawerToggle(
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
     }
 
     private void populateMenuWithTaskLists() {
-        taskViewModel.getAllTaskLists().observe(this, new Observer<List<TaskList>>() {
-            @Override
-            public void onChanged(List<TaskList> taskListNames) {
-                menu.clear();
-                menu.add(Menu.NONE, R.id.create_task_list, Menu.NONE, "Create Task List").setIcon(R.drawable.add);
-                for (TaskList taskList : taskListNames) {
-                    MenuItem item = menu.add(Menu.NONE, taskList.getId(), Menu.NONE, taskList.getName());
-                    item.setCheckable(true);
-                }
+        taskViewModel.getAllTaskLists().observe(this, taskLists -> {
+            menu.clear();
+            menu.add(Menu.NONE, R.id.create_task_list, Menu.NONE, "Create Task List").setIcon(R.drawable.add);
+            for (TaskList taskList : taskLists) {
+                MenuItem item = menu.add(Menu.NONE, taskList.getId(), Menu.NONE, taskList.getName());
+                item.setCheckable(true);
             }
         });
     }
@@ -183,17 +169,17 @@ public class TaskListActivity extends AppCompatActivity
     }
 
     private void loadAndDisplayTasks(int taskListId) {
-        taskViewModel.getTasksByTaskListId(taskListId).observe(this, new Observer<List<Task>>() {
-            @Override
-            public void onChanged(List<Task> tasks) {
-                taskListFragment.updateTasks(tasks);
-                updateActionBarTitle(taskListId);
-            }
+        taskViewModel.getTasksByTaskListId(taskListId).observe(this, tasks -> {
+            taskListFragment.updateTasks(tasks);
+            updateActionBarTitle(taskListId);
         });
     }
 
     private void updateActionBarTitle(int taskListId) {
-        TaskList taskList = taskViewModel.getAllTaskLists().getValue().stream().filter(t -> t.getId() == taskListId).findFirst().orElse(null);
+        TaskList taskList = taskViewModel.getAllTaskLists().getValue().stream()
+                .filter(t -> t.getId() == taskListId)
+                .findFirst()
+                .orElse(null);
         if (taskList != null) {
             ActionBar actionBar = getSupportActionBar();
             if (actionBar != null) {
@@ -204,18 +190,16 @@ public class TaskListActivity extends AppCompatActivity
 
     @Override
     public void onTaskSelected(Task task) {
-        if (tabletMode) {
-            if (taskDetailFragment != null) {
-                Bundle args = new Bundle();
-                args.putParcelable(TaskDetail.TASK_EXTRA, task);
-                args.putInt("taskListId", task.getTaskListId());  // Pass the taskListId
-                taskDetailFragment.setArguments(args);
-                taskDetailFragment.displayTask(task);
-            }
+        if (tabletMode && taskDetailFragment != null) {
+            Bundle args = new Bundle();
+            args.putParcelable(TaskDetail.TASK_EXTRA, task);
+            args.putInt("taskListId", task.getTaskListId());
+            taskDetailFragment.setArguments(args);
+            taskDetailFragment.displayTask(task);
         } else {
             Intent intent = new Intent(this, TaskDetail.class);
             intent.putExtra(TaskDetail.TASK_EXTRA, task);
-            intent.putExtra("taskListId", task.getTaskListId());  // Pass the taskListId
+            intent.putExtra("taskListId", task.getTaskListId());
             activityLauncher.launch(intent);
         }
     }
@@ -227,7 +211,6 @@ public class TaskListActivity extends AppCompatActivity
         } else {
             currentTaskListId = item.getItemId();
             loadAndDisplayTasks(currentTaskListId);
-
             if (tabletMode && taskDetailFragment != null) {
                 taskDetailFragment.displayTask(null);
                 Bundle args = new Bundle();
@@ -247,10 +230,7 @@ public class TaskListActivity extends AppCompatActivity
         input.setInputType(InputType.TYPE_CLASS_TEXT);
         builder.setView(input);
 
-        builder.setPositiveButton("OK", (dialog, which) -> {
-            String newTaskListName = input.getText().toString().trim();
-            handleNewTaskListCreation(newTaskListName);
-        });
+        builder.setPositiveButton("OK", (dialog, which) -> handleNewTaskListCreation(input.getText().toString().trim()));
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
         builder.show();
     }
@@ -314,31 +294,43 @@ public class TaskListActivity extends AppCompatActivity
     }
 
     private void createInitialTaskLists() {
-        taskViewModel.getAllTaskLists().observe(this, new Observer<List<TaskList>>() {
-            @Override
-            public void onChanged(List<TaskList> taskLists) {
-                TaskList groceriesTaskList = null;
-                TaskList universityTaskList = null;
+        taskViewModel.getAllTaskLists().observe(this, taskLists -> {
+            TaskList groceriesTaskList = null;
+            TaskList universityTaskList = null;
 
-                for (TaskList taskList : taskLists) {
-                    if (taskList.getName().equals("Groceries")) {
-                        groceriesTaskList = taskList;
-                    } else if (taskList.getName().equals("University")) {
-                        universityTaskList = taskList;
-                    }
+            for (TaskList taskList : taskLists) {
+                if ("Groceries".equals(taskList.getName())) {
+                    groceriesTaskList = taskList;
+                } else if ("University".equals(taskList.getName())) {
+                    universityTaskList = taskList;
                 }
+            }
 
-                if (groceriesTaskList == null) {
-                    groceriesTaskList = new TaskList("Groceries");
-                    taskViewModel.insertTaskList(groceriesTaskList);
-                }
-                if (universityTaskList == null) {
-                    universityTaskList = new TaskList("University");
-                    taskViewModel.insertTaskList(universityTaskList);
-                }
-
-                taskViewModel.getAllTaskLists().removeObserver(this); // Remove the observer to prevent repeated insertions
+            if (groceriesTaskList == null) {
+                groceriesTaskList = new TaskList("Groceries");
+                taskViewModel.insertTaskList(groceriesTaskList);
+            }
+            if (universityTaskList == null) {
+                universityTaskList = new TaskList("University");
+                taskViewModel.insertTaskList(universityTaskList);
             }
         });
+    }
+
+    private void observeTaskLists() {
+        taskViewModel.getAllTaskLists().observe(this, taskLists -> {
+            // If no task list is currently selected, select the first one from the database
+            if (currentTaskListId == -1 && !taskLists.isEmpty()) {
+                TaskList firstTaskList = taskLists.get(0);
+                currentTaskListId = firstTaskList.getId();
+                loadAndDisplayTasks(currentTaskListId);
+                updateActionBarTitle(currentTaskListId);
+            }
+        });
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        taskViewModel.getAllTaskLists().removeObservers(this);
     }
 }

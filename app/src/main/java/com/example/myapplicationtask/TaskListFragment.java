@@ -25,8 +25,9 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
     private FragmentTaskListBinding binding;
     private FilteredTasksAdapter adapter;
     private TaskListFragmentCallbacks callback;
-    private boolean showAllTask = true;
     private TaskViewModel taskViewModel;
+
+    private boolean showAllTasks = true;
 
     public interface TaskListFragmentCallbacks {
         void onTaskSelected(Task task);
@@ -39,76 +40,59 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
         if (context instanceof TaskListFragmentCallbacks) {
             callback = (TaskListFragmentCallbacks) context;
         } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement TaskListFragmentCallbacks");
+            throw new RuntimeException(context.toString() + " must implement TaskListFragmentCallbacks");
         }
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
-        callback = null;
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        binding = FragmentTaskListBinding.bind(view);
+        taskViewModel = new TaskViewModel(requireActivity().getApplication());
+
+        setupRecyclerView();
     }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean("showUnfinishedTasks", showAllTask);
+        outState.putBoolean("showAllTasks", showAllTasks);
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        binding = FragmentTaskListBinding.inflate(inflater, container, false);
-        View view = binding.getRoot();
-        taskViewModel = new TaskViewModel(requireActivity().getApplication());
-        setupRecyclerView();
-        setHasOptionsMenu(true);
-
-        if (savedInstanceState != null) {
-            showAllTask = savedInstanceState.getBoolean("showUnfinishedTasks", false);
-            adapter.setFilter(showAllTask);
-        }
-
-        return view;
+        return inflater.inflate(R.layout.fragment_task_list, container, false);
     }
 
     private void setupRecyclerView() {
         adapter = new FilteredTasksAdapter(new ArrayList<>(), this);
         binding.listview.setLayoutManager(new LinearLayoutManager(getContext()));
-        binding.listview.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
-        binding.listview.addItemDecoration(new SpaceItem(20));
+        binding.listview.addItemDecoration(new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL));
         binding.listview.setAdapter(adapter);
-    }
-
-    @Override
-    public void onTaskSelected(Task task) {
-        if (callback != null) {
-            callback.onTaskSelected(task);
-        }
-    }
-
-    @Override
-    public void onTaskStatusChanged(Task task) {
-        // Update the task in the database through the ViewModel
-        taskViewModel.updateTask(task);
     }
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.main_menu, menu);
-        super.onCreateOptionsMenu(menu, inflater);
     }
+
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.firstOption) {
             adapter.setFilter(true);
-            showAllTask = true;
+            showAllTasks = true;
             return true;
         } else if (item.getItemId() == R.id.secondOption) {
-            showAllTask = false;
+            showAllTasks = false;
             adapter.setFilter(false);
             return true;
         } else if (item.getItemId() == R.id.thirdOption) {
@@ -120,7 +104,37 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
         return super.onOptionsItemSelected(item);
     }
 
+
     public void updateTasks(List<Task> tasks) {
         adapter.updateTasks(tasks);
     }
+
+    @Override
+    public void onTaskSelected(Task task) {
+        if (callback != null) {
+            callback.onTaskSelected(task);
+        }
+    }
+
+    @Override
+    public void onTaskStatusChanged(Task task) {
+        taskViewModel.updateTask(task);
+    }
+
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        callback = null;
+    }
+
+
+
 }
+
