@@ -1,11 +1,7 @@
 package com.example.myapplicationtask;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-import com.example.myapplicationtask.databinding.TaskListItemBinding;
+import android.content.Context;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,8 +11,8 @@ public class FilteredTasksAdapter extends TaskListAdapter {
     private List<Task> originalTasks;
     private boolean showAllTasks;
 
-    public FilteredTasksAdapter(List<Task> tasks, OnTaskSelectedListener listener) {
-        super(new ArrayList<>(tasks), listener);
+    public FilteredTasksAdapter(List<Task> tasks, OnTaskSelectedListener listener, Context context) {
+        super(new ArrayList<>(tasks), listener, context);
         this.originalTasks = new ArrayList<>(tasks);
         this.showAllTasks = true;
     }
@@ -39,6 +35,4 @@ public class FilteredTasksAdapter extends TaskListAdapter {
         this.originalTasks = new ArrayList<>(updateTasks);
         filterTasks();
     }
-
-
 }

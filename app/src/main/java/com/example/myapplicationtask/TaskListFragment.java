@@ -73,7 +73,7 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
     }
 
     private void setupRecyclerView() {
-        adapter = new FilteredTasksAdapter(new ArrayList<>(), this);
+        adapter = new FilteredTasksAdapter(new ArrayList<>(), this, requireContext());
         binding.listview.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.listview.addItemDecoration(new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL));
         binding.listview.addItemDecoration(new SpaceItem(20));
@@ -84,7 +84,6 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.main_menu, menu);
     }
-
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -105,7 +104,6 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
         return super.onOptionsItemSelected(item);
     }
 
-
     public void updateTasks(List<Task> tasks) {
         adapter.updateTasks(tasks);
     }
@@ -122,7 +120,6 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
         taskViewModel.updateTask(task);
     }
 
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -134,8 +131,4 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
         super.onDetach();
         callback = null;
     }
-
-
-
 }
-
