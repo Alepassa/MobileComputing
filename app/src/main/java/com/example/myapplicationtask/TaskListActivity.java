@@ -54,6 +54,8 @@ public class TaskListActivity extends AppCompatActivity
 
         if (savedInstanceState != null) {
             currentTaskListId = savedInstanceState.getInt(STATE_CURRENT_TASK_LIST, -1);
+            Log.d("TaskListActivity", "Restored Task List ID from savedInstanceState: " + currentTaskListId);
+
         }
 
         handleIntent();
@@ -239,6 +241,18 @@ public class TaskListActivity extends AppCompatActivity
         if (!newTaskListName.isEmpty()) {
             TaskList newTaskList = new TaskList(newTaskListName);
             taskViewModel.insertTaskList(newTaskList);
+
+            taskViewModel.getAllTaskLists().observe(this, taskLists -> {
+                for (TaskList taskList : taskLists) {
+                    if (taskList.getName().equals(newTaskListName)) {
+                        currentTaskListId = taskList.getId();
+                        Log.d("TaskListActivity", "New Task List created with ID: " + currentTaskListId);
+                        break;
+                    }
+                }
+                loadAndDisplayTasks(currentTaskListId);
+                updateActionBarTitle(currentTaskListId);
+            });
         } else {
             showErrorForTaskListCreation(newTaskListName);
         }
@@ -319,15 +333,16 @@ public class TaskListActivity extends AppCompatActivity
 
     private void observeTaskLists() {
         taskViewModel.getAllTaskLists().observe(this, taskLists -> {
-            // If no task list is currently selected, select the first one from the database
             if (currentTaskListId == -1 && !taskLists.isEmpty()) {
                 TaskList firstTaskList = taskLists.get(0);
                 currentTaskListId = firstTaskList.getId();
+
                 loadAndDisplayTasks(currentTaskListId);
                 updateActionBarTitle(currentTaskListId);
             }
         });
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
