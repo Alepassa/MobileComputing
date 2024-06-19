@@ -24,17 +24,14 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
 
     private FragmentTaskListBinding binding;
     private FilteredTasksAdapter adapter;
-    private TaskListFragmentCallbacks listener;
-    private boolean showAllTask=true;
-
+    private TaskListFragmentCallbacks callback;
+    private boolean showAllTask = true;
+    private TaskViewModel taskViewModel;
 
     public interface TaskListFragmentCallbacks {
         void onTaskSelected(Task task);
-
         void onClearCompletedTasks();
     }
-
-    private TaskListFragmentCallbacks callback;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -53,6 +50,7 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
         callback = null;
     }
 
+    @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean("showUnfinishedTasks", showAllTask);
@@ -64,10 +62,10 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
                              @Nullable Bundle savedInstanceState) {
         binding = FragmentTaskListBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
+        taskViewModel = new TaskViewModel(requireActivity().getApplication());
         setupRecyclerView();
         setHasOptionsMenu(true);
 
-        // save the status of filter when there is a rotation
         if (savedInstanceState != null) {
             showAllTask = savedInstanceState.getBoolean("showUnfinishedTasks", false);
             adapter.setFilter(showAllTask);
@@ -77,11 +75,24 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
     }
 
     private void setupRecyclerView() {
-        adapter = new FilteredTasksAdapter(new ArrayList<>(), this::onTaskSelected);
+        adapter = new FilteredTasksAdapter(new ArrayList<>(), this);
         binding.listview.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.listview.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
         binding.listview.addItemDecoration(new SpaceItem(20));
         binding.listview.setAdapter(adapter);
+    }
+
+    @Override
+    public void onTaskSelected(Task task) {
+        if (callback != null) {
+            callback.onTaskSelected(task);
+        }
+    }
+
+    @Override
+    public void onTaskStatusChanged(Task task) {
+        // Update the task in the database through the ViewModel
+        taskViewModel.updateTask(task);
     }
 
     @Override
@@ -109,21 +120,7 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
         return super.onOptionsItemSelected(item);
     }
 
-
     public void updateTasks(List<Task> tasks) {
         adapter.updateTasks(tasks);
     }
-
-    @Override
-    public void onTaskSelected(Task task) {
-        if (callback != null) {
-            callback.onTaskSelected(task);
-        }
-    }
-
-
-
-
-
 }
-
