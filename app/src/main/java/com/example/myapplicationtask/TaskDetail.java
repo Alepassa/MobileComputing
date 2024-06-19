@@ -1,10 +1,11 @@
 package com.example.myapplicationtask;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -21,6 +22,15 @@ public class TaskDetail extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        // Check if the toolbar is present and set it up as the ActionBar if it is
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true); // Enable back button
+            }
+        }
 
         Intent intent = getIntent();
         taskListId = intent.getIntExtra("taskListId", -1);
@@ -59,10 +69,20 @@ public class TaskDetail extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            // Navigate back to the TaskListActivity
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     public void returnUpdatedTask(Task updatedTask) {
         Intent resultIntent = new Intent();
         resultIntent.putExtra(TASK_EXTRA, updatedTask);
-        setResult(Activity.RESULT_OK, resultIntent);
+        setResult(RESULT_OK, resultIntent);
         finish();
     }
 }
