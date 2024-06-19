@@ -211,7 +211,12 @@ public class TaskListActivity extends AppCompatActivity
         if (item.getItemId() == R.id.create_task_list) {
             showCreateTaskListDialog();
         } else {
-            currentTaskListId = item.getItemId();
+            int newTaskListId = item.getItemId();
+            Log.d("TaskListActivity", "Selected Task List ID: " + newTaskListId);
+
+            currentTaskListId = newTaskListId;
+            Log.d("TaskListActivity", "Current Task List ID set to: " + currentTaskListId);
+
             loadAndDisplayTasks(currentTaskListId);
             if (tabletMode && taskDetailFragment != null) {
                 taskDetailFragment.displayTask(null);

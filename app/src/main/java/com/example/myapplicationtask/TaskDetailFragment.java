@@ -118,7 +118,7 @@ public class TaskDetailFragment extends Fragment {
             callbacks.onUpdateTask(task);
         }
 
-        requireActivity().onBackPressed();
+        requireActivity().finish();
     }
 
 
