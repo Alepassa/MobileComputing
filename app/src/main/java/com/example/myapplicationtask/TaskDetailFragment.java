@@ -103,14 +103,18 @@ public class TaskDetailFragment extends Fragment {
         task.setDate(binding.editData.getText().toString());
         task.setTaskListId(taskListId);
 
+        Log.d("TaskDetailFragment", "Saving task: " + task.toString()); // Log task details
+
         if (taskListId == -1) {
             Toast.makeText(requireContext(), "Task list ID is invalid. Please select a valid task list.", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (task.getId() == 0) {
+            Log.d("TaskDetailFragment", "Inserting task");
             taskViewModel.insertTask(task);
         } else {
+            Log.d("TaskDetailFragment", "Updating task");
             taskViewModel.updateTask(task);
         }
 
@@ -118,7 +122,9 @@ public class TaskDetailFragment extends Fragment {
             callbacks.onUpdateTask(task);
         }
 
-        requireActivity().finish();
+        if (getActivity() instanceof TaskDetail) {
+            requireActivity().finish();
+        }
     }
 
 

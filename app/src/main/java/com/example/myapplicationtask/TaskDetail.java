@@ -33,14 +33,7 @@ public class TaskDetail extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        if (toolbar != null) {
-            setSupportActionBar(toolbar);
-            if (getSupportActionBar() != null) {
-                getSupportActionBar().setTitle("Task Detail");
-                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            }
-        }
+        setupToolbar();
 
         if (savedInstanceState != null) {
             taskListId = savedInstanceState.getInt("taskListId", -1);
@@ -67,6 +60,15 @@ public class TaskDetail extends AppCompatActivity {
             FragmentTransaction transaction = fm.beginTransaction();
             transaction.add(R.id.taskDetailContainer, taskDetailFragment);
             transaction.commit();
+        }
+    }
+
+    public void setupToolbar() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+            getSupportActionBar().setTitle("Task Detail");
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
     }
 
