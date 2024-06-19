@@ -1,6 +1,7 @@
 package com.example.myapplicationtask;
 
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,14 +57,21 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskVi
         }
 
         public void bind(Task task) {
+            Log.d("TaskListAdapter", "bind: Task " + task.getId() + " isChecked: " + binding.checkBox3.isChecked());
+
             binding.TaskNameTextView.setText(task.getShortName());
             binding.checkBox3.setChecked(task.isDone());
-            binding.getRoot().setOnClickListener(v -> listener.onTaskSelected(task));
+
+            binding.getRoot().setOnClickListener(v -> {
+                Log.d("TaskListAdapter", "Root view clicked for Task: " + task.getId());
+                listener.onTaskSelected(task);
+            });
+
             binding.checkBox3.setOnClickListener(v -> {
+                Log.d("TaskListAdapter", "Checkbox clicked for Task: " + task.getId() + ", isChecked: " + binding.checkBox3.isChecked());
                 boolean isChecked = binding.checkBox3.isChecked();
                 task.setDone(isChecked);
                 listener.onTaskStatusChanged(task); // Notify listener of status change
-
             });
         }
     }

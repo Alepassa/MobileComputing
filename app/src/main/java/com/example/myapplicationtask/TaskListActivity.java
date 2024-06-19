@@ -81,6 +81,8 @@ public class TaskListActivity extends AppCompatActivity
 
         menu = navigationView.getMenu();
         populateMenuWithTaskLists();
+        Log.d("TaskListActivity", "initializeUI: toolbar initialized = " + (toolbar != null));
+        Log.d("TaskListActivity", "initializeUI: drawer initialized = " + (drawer != null));
 
         FloatingActionButton fab = binding.fab;
         if (fab != null) {
@@ -119,8 +121,11 @@ public class TaskListActivity extends AppCompatActivity
         taskViewModel.getAllTaskLists().observe(this, taskLists -> {
             menu.clear();
             menu.add(Menu.NONE, R.id.create_task_list, Menu.NONE, "Create Task List").setIcon(R.drawable.add);
+            Log.d("TaskListActivity", "populateMenuWithTaskLists: menu size = " + menu.size());
+
             for (TaskList taskList : taskLists) {
                 MenuItem item = menu.add(Menu.NONE, taskList.getId(), Menu.NONE, taskList.getName());
+
                 item.setCheckable(true);
             }
         });
@@ -130,6 +135,7 @@ public class TaskListActivity extends AppCompatActivity
         FragmentManager fm = getSupportFragmentManager();
         taskListFragment = getOrCreateFragment(fm, R.id.taskListFragment, TaskListFragment.class);
         tabletMode = binding.taskDetailContainer != null;
+        Log.d("TaskListActivity", "setupFragments: tabletMode = " + tabletMode);
 
         if (tabletMode) {
             taskDetailFragment = getOrCreateFragment(fm, R.id.taskDetailContainer, TaskDetailFragment.class);
@@ -153,6 +159,8 @@ public class TaskListActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
+        Log.d("TaskListActivity", "onStart: currentTaskListId = " + currentTaskListId);
+
         if (currentTaskListId != -1) {
             loadAndDisplayTasks(currentTaskListId);
         }
@@ -171,6 +179,8 @@ public class TaskListActivity extends AppCompatActivity
     }
 
     private void loadAndDisplayTasks(int taskListId) {
+        Log.d("TaskListActivity", "loadAndDisplayTasks: taskListId = " + taskListId);
+
         taskViewModel.getTasksByTaskListId(taskListId).observe(this, tasks -> {
             taskListFragment.updateTasks(tasks);
             updateActionBarTitle(taskListId);
@@ -192,6 +202,8 @@ public class TaskListActivity extends AppCompatActivity
 
     @Override
     public void onTaskSelected(Task task) {
+        Log.d("TaskListActivity", "onTaskSelected: task = " + task);
+
         if (tabletMode && taskDetailFragment != null) {
             Bundle args = new Bundle();
             args.putParcelable(TaskDetail.TASK_EXTRA, task);
@@ -276,6 +288,8 @@ public class TaskListActivity extends AppCompatActivity
 
     @Override
     public void onClearCompletedTasks() {
+        Log.d("TaskListActivity", "onClearCompletedTasks: currentTaskListId = " + currentTaskListId);
+
         if (currentTaskListId != -1) {
             taskViewModel.deleteCompletedTasksByTaskListId(currentTaskListId);
         }
@@ -283,6 +297,8 @@ public class TaskListActivity extends AppCompatActivity
 
     @Override
     public void onUpdateTask(Task updatedTask) {
+        Log.d("TaskListActivity", "onUpdateTask: updatedTask = " + updatedTask);
+
         taskViewModel.updateTask(updatedTask);
         if (currentTaskListId != -1) {
             loadAndDisplayTasks(currentTaskListId);
@@ -290,6 +306,8 @@ public class TaskListActivity extends AppCompatActivity
     }
 
     private void handleIntent() {
+        Log.d("TaskListActivity", "handleIntent: currentTaskListId = " + currentTaskListId);
+
         activityLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
