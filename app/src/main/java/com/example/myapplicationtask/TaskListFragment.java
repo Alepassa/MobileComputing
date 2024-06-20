@@ -58,7 +58,8 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
         taskViewModel = new TaskViewModel(requireActivity().getApplication());
 
         setupRecyclerView();
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new SwipeToDeleteCallBack(adapter));
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new SwipeToDeleteCallback(adapter));
         itemTouchHelper.attachToRecyclerView(binding.listview);
         ItemTouchHelper itemTouchHelper1 = new ItemTouchHelper(new DragAndDropCallback(adapter));
         itemTouchHelper1.attachToRecyclerView(binding.listview);
@@ -90,6 +91,7 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
         inflater.inflate(R.menu.main_menu, menu);
     }
 
+
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.firstOption) {
@@ -109,6 +111,7 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
         return super.onOptionsItemSelected(item);
     }
 
+
     public void updateTasks(List<Task> tasks) {
         adapter.updateTasks(tasks);
     }
@@ -125,6 +128,7 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
         taskViewModel.updateTask(task);
     }
 
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -136,4 +140,8 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
         super.onDetach();
         callback = null;
     }
+
+
+
 }
+

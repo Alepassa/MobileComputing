@@ -23,5 +23,4 @@ public interface TaskListDao {
 
     @Query("DELETE FROM task_list_table WHERE id = :taskListId")
     void deleteTaskListById(int taskListId);
-
 }

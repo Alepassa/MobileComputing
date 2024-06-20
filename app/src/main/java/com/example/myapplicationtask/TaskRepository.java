@@ -11,12 +11,12 @@ public interface TaskRepository {
     LiveData<List<Task>> getAllTasks();
     Task getTaskById(int id);
     void deleteCompletedTasks();
-    LiveData<List<TaskList>> getTaskLists();
+    LiveData<List<TaskList>> getTaskLists(); // Updated to return List<TaskList>
     LiveData<List<Task>> loadTasks(String taskListName);
     void insertTaskList(TaskList taskList);
     LiveData<List<TaskList>> getAllTaskLists();
-    LiveData<List<Task>> getTasksByTaskListId(int taskListId);
+    LiveData<List<Task>> getTasksByTaskListId(int taskListId); // Add this method
     void deleteCompletedTasksByTaskListId(int taskListId);
-    void deleteTaskListById(int taskListId);
 
+    void deleteTaskListById(int taskListId);
 }
