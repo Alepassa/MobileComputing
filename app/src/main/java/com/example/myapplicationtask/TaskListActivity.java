@@ -44,7 +44,7 @@ public class TaskListActivity extends AppCompatActivity
     private boolean tabletMode;
     private Menu menu;
     private ActivityResultLauncher<Intent> activityLauncher;
-    private int currentTaskListId = 1;
+    private int currentTaskListId = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,10 +62,11 @@ public class TaskListActivity extends AppCompatActivity
         initializeUI();
         setupFragments();
         createInitialTaskLists();
+        observeTaskLists();
+
         if (tabletMode && taskDetailFragment != null) {
             taskDetailFragment.updateTaskListId(1);
         }
-        observeTaskLists();
     }
 
     private void initializeViewModel() {
