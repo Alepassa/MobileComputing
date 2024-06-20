@@ -136,4 +136,13 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
         super.onDetach();
         callback = null;
     }
+
+    public void updateTaskDetailFragment(Task task) {
+        if (getActivity() instanceof TaskListActivity) {
+            TaskListActivity activity = (TaskListActivity) getActivity();
+            if (activity.isTabletMode() && activity.getTaskDetailFragment() != null) {
+                activity.getTaskDetailFragment().displayTask(task);
+            }
+        }
+    }
 }

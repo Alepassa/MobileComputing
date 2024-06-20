@@ -404,4 +404,12 @@ public class TaskListActivity extends AppCompatActivity
         }
         return super.onOptionsItemSelected(item);
     }
+
+    public boolean isTabletMode() {
+        return tabletMode;
+    }
+
+    public TaskDetailFragment getTaskDetailFragment() {
+        return taskDetailFragment;
+    }
 }

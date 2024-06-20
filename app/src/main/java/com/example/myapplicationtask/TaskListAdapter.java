@@ -22,6 +22,7 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskVi
     public interface OnTaskSelectedListener {
         void onTaskSelected(Task task);
         void onTaskStatusChanged(Task task);
+
     }
 
     protected List<Task> tasks;
@@ -81,7 +82,11 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskVi
                 new Handler().postDelayed(() -> {
                     listener.onTaskStatusChanged(task);
                     binding.checkBox3.setEnabled(true);
-                }, 2000);
+
+                    if (listener instanceof TaskListFragment) {
+                        ((TaskListFragment) listener).updateTaskDetailFragment(task);
+                    }
+                }, 200);
             });
 
             binding.getRoot().setOnClickListener(v -> listener.onTaskSelected(task));
