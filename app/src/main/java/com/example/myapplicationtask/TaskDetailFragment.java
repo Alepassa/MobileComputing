@@ -151,11 +151,19 @@ public class TaskDetailFragment extends Fragment {
         }
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(), (DatePicker view, int selectedYear, int selectedMonth, int selectedDay) -> {
-            binding.editData.setText(monthNames[selectedMonth] + " " + selectedDay + ", " + selectedYear);
+            Calendar selectedDate = Calendar.getInstance();
+            selectedDate.set(selectedYear, selectedMonth, selectedDay);
+
+            if (selectedDate.before(calendar)) {
+                Toast.makeText(requireContext(), "You cannot select a past date", Toast.LENGTH_SHORT).show();
+            } else {
+                binding.editData.setText(monthNames[selectedMonth] + " " + selectedDay + ", " + selectedYear);
+            }
         }, year, month, day);
 
         datePickerDialog.show();
     }
+
 
     @Override
     public void onDetach() {
