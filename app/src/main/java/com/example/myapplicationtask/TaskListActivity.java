@@ -30,7 +30,7 @@ import java.util.List;
 public class TaskListActivity extends AppCompatActivity
         implements TaskListFragment.TaskListFragmentCallbacks,
         TaskDetailFragment.OnTaskUpdatedListener,
-        NavigationView.OnNavigationItemSelectedListener {
+        NavigationView.OnNavigationItemSelectedListener{
 
     private static final String STATE_CURRENT_TASK_LIST = "current_task_list_state";
 
@@ -196,6 +196,7 @@ public class TaskListActivity extends AppCompatActivity
             }
         }
     }
+
 
     @Override
     public void onTaskSelected(Task task) {

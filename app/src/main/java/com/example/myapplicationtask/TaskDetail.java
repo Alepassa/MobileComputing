@@ -36,7 +36,6 @@ public class TaskDetail extends AppCompatActivity {
 
         setupToolbar();
 
-        // Recupera i dati solo se savedInstanceState è null
         if (savedInstanceState == null) {
             Intent intent = getIntent();
             taskListId = intent.getIntExtra("taskListId", -1);

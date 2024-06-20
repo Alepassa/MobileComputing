@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.myapplicationtask.databinding.FragmentTaskListBinding;
@@ -56,7 +57,10 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
         binding = FragmentTaskListBinding.bind(view);
         taskViewModel = new TaskViewModel(requireActivity().getApplication());
 
-        setupRecyclerView();
+        setupRecyclerView(); // Initialize adapter and set up RecyclerView
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new SwipeToDeleteCallBack(adapter));
+        itemTouchHelper.attachToRecyclerView(binding.listview);
     }
 
     @Override
@@ -73,7 +77,7 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
     }
 
     private void setupRecyclerView() {
-        adapter = new FilteredTasksAdapter(new ArrayList<>(), this, requireContext());
+        adapter = new FilteredTasksAdapter(new ArrayList<>(), this);
         binding.listview.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.listview.addItemDecoration(new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL));
         binding.listview.addItemDecoration(new SpaceItem(20));

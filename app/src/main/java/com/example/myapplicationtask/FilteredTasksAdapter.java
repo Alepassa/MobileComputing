@@ -11,8 +11,8 @@ public class FilteredTasksAdapter extends TaskListAdapter {
     private List<Task> originalTasks;
     private boolean showAllTasks;
 
-    public FilteredTasksAdapter(List<Task> tasks, OnTaskSelectedListener listener, Context context) {
-        super(new ArrayList<>(tasks), listener, context);
+    public FilteredTasksAdapter(List<Task> tasks, OnTaskSelectedListener listener) {
+        super(new ArrayList<>(tasks), listener);
         this.originalTasks = new ArrayList<>(tasks);
         this.showAllTasks = true;
     }
