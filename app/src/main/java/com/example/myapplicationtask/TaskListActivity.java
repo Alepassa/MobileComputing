@@ -45,6 +45,8 @@ public class TaskListActivity extends AppCompatActivity
     private Menu menu;
     private ActivityResultLauncher<Intent> activityLauncher;
     private int currentTaskListId = -1;
+    private boolean showAllTasks = true;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,6 +145,8 @@ public class TaskListActivity extends AppCompatActivity
             taskDetailFragment = getOrCreateFragment(fm, R.id.taskDetailContainer, TaskDetailFragment.class);
             taskDetailFragment.setOnTaskUpdatedListener(this);
         }
+        taskListFragment.setFilter(showAllTasks);
+
     }
 
     private <T extends androidx.fragment.app.Fragment> T getOrCreateFragment(FragmentManager fm, int containerId, Class<T> fragmentClass) {
@@ -172,12 +176,16 @@ public class TaskListActivity extends AppCompatActivity
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(STATE_CURRENT_TASK_LIST, currentTaskListId);
+        outState.putBoolean("showAllTasks", showAllTasks);
+
     }
 
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         currentTaskListId = savedInstanceState.getInt(STATE_CURRENT_TASK_LIST, -1);
+        showAllTasks = savedInstanceState.getBoolean("showAllTasks", true);
+
     }
 
     private void loadAndDisplayTasks(int taskListId) {

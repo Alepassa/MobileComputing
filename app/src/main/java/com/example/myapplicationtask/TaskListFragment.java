@@ -62,6 +62,12 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
         itemTouchHelper.attachToRecyclerView(binding.listview);
         ItemTouchHelper itemTouchHelper1 = new ItemTouchHelper(new DragAndDropCallback(adapter));
         itemTouchHelper1.attachToRecyclerView(binding.listview);
+
+        if (savedInstanceState != null) {
+            showAllTasks = savedInstanceState.getBoolean("showAllTasks", true);
+        }
+
+        adapter.setFilter(showAllTasks);
     }
 
     @Override
@@ -143,6 +149,11 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
             if (activity.isTabletMode() && activity.getTaskDetailFragment() != null) {
                 activity.getTaskDetailFragment().displayTask(task);
             }
+        }
+    }
+    public void setFilter(boolean showAll) {
+        if (adapter != null) {
+            adapter.setFilter(showAll);
         }
     }
 }
