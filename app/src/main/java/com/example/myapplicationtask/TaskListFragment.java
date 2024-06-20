@@ -57,8 +57,7 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
         binding = FragmentTaskListBinding.bind(view);
         taskViewModel = new TaskViewModel(requireActivity().getApplication());
 
-        setupRecyclerView(); // Initialize adapter and set up RecyclerView
-
+        setupRecyclerView();
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new SwipeToDeleteCallBack(adapter));
         itemTouchHelper.attachToRecyclerView(binding.listview);
         ItemTouchHelper itemTouchHelper1 = new ItemTouchHelper(new DragAndDropCallback(adapter));
