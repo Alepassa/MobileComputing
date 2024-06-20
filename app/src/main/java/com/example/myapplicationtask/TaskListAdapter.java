@@ -39,6 +39,12 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskVi
         return new TaskViewHolder(binding);
     }
 
+    public void moveTask(int fromPosition, int toPosition) {
+        Task movedTask = tasks.remove(fromPosition);
+        tasks.add(toPosition, movedTask);
+        notifyItemMoved(fromPosition, toPosition);
+    }
+
     @Override
     public void onBindViewHolder(@NonNull TaskViewHolder holder, int position) {
         Task task = tasks.get(position);

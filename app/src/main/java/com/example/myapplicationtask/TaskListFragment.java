@@ -61,6 +61,8 @@ public class TaskListFragment extends Fragment implements TaskListAdapter.OnTask
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new SwipeToDeleteCallBack(adapter));
         itemTouchHelper.attachToRecyclerView(binding.listview);
+        ItemTouchHelper itemTouchHelper1 = new ItemTouchHelper(new DragAndDropCallback(adapter));
+        itemTouchHelper1.attachToRecyclerView(binding.listview);
     }
 
     @Override
