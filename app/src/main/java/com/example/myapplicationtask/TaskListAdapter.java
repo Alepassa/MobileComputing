@@ -76,21 +76,19 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskVi
                 task.setDone(isChecked);
                 Log.d("TaskListAdapter", "Checkbox clicked for Task: " + task.getId() + ", isChecked: " + isChecked);
 
-                binding.checkBox3.setEnabled(false); // Disabilita il checkbox temporaneamente
+                binding.checkBox3.setEnabled(false);
 
-                // Simula un aggiornamento asincrono
                 new Handler().postDelayed(() -> {
-                    listener.onTaskStatusChanged(task); // Notifica il cambiamento di stato
-                    binding.checkBox3.setEnabled(true); // Riabilita il checkbox
+                    listener.onTaskStatusChanged(task);
+                    binding.checkBox3.setEnabled(true);
                 }, 2000);
             });
 
-            // Imposta il listener per il click sull'intero elemento della vista
             binding.getRoot().setOnClickListener(v -> listener.onTaskSelected(task));
         }
     }
 
-    // Metodo per rimuovere un task dalla RecyclerView
+
     public void removeTask(int position) {
         tasks.remove(position);
         notifyItemRemoved(position);
