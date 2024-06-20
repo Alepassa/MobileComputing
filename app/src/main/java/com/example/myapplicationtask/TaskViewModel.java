@@ -53,4 +53,8 @@ public class TaskViewModel extends AndroidViewModel {
         taskRepository.deleteTaskListById(taskListId);
     }
 
+    public void deleteTaskById(int taskId) {
+        taskRepository.deleteTaskById(taskId);
+    }
+
 }

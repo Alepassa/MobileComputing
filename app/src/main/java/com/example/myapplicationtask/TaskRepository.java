@@ -19,4 +19,5 @@ public interface TaskRepository {
     void deleteCompletedTasksByTaskListId(int taskListId);
     void deleteTaskListById(int taskListId);
 
+    void deleteTaskById(int taskId);
 }

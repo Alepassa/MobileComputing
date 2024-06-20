@@ -8,10 +8,13 @@ import androidx.recyclerview.widget.RecyclerView;
 public class SwipeToDeleteCallBack extends ItemTouchHelper.SimpleCallback {
 
     private final TaskListAdapter adapter;
+    private final TaskViewModel taskViewModel;
 
-    public SwipeToDeleteCallBack(TaskListAdapter adapter) {
+    public SwipeToDeleteCallBack(TaskListAdapter adapter, TaskViewModel taskViewModel) {
         super(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
         this.adapter = adapter;
+        this.taskViewModel = taskViewModel;
+
     }
 
     @Override
@@ -22,6 +25,10 @@ public class SwipeToDeleteCallBack extends ItemTouchHelper.SimpleCallback {
     @Override
     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
         int position = viewHolder.getAdapterPosition();
+        Task taskToDelete = adapter.getTasks().get(position);
+
+        taskViewModel.deleteTask(taskToDelete);
+
         adapter.removeTask(position);
     }
 }
