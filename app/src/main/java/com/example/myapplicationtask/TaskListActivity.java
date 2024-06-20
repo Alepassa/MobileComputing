@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -43,7 +44,7 @@ public class TaskListActivity extends AppCompatActivity
     private boolean tabletMode;
     private Menu menu;
     private ActivityResultLauncher<Intent> activityLauncher;
-    private int currentTaskListId = -1;
+    private int currentTaskListId = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +55,6 @@ public class TaskListActivity extends AppCompatActivity
         if (savedInstanceState != null) {
             currentTaskListId = savedInstanceState.getInt(STATE_CURRENT_TASK_LIST, -1);
             Log.d("TaskListActivity", "Restored Task List ID from savedInstanceState: " + currentTaskListId);
-
         }
 
         handleIntent();
@@ -62,7 +62,9 @@ public class TaskListActivity extends AppCompatActivity
         initializeUI();
         setupFragments();
         createInitialTaskLists();
-
+        if (tabletMode && taskDetailFragment != null) {
+            taskDetailFragment.updateTaskListId(1);
+        }
         observeTaskLists();
     }
 
@@ -220,7 +222,14 @@ public class TaskListActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.create_task_list) {
-            showCreateTaskListDialog();
+            showCreateTaskListDialog(newTaskListId -> {
+                currentTaskListId = newTaskListId;
+                loadAndDisplayTasks(currentTaskListId);
+                if (tabletMode && taskDetailFragment != null) {
+                    taskDetailFragment.updateTaskListId(currentTaskListId);
+                    taskDetailFragment.displayTask(null);
+                }
+            });
         } else {
             int newTaskListId = item.getItemId();
             Log.d("TaskListActivity", "Selected Task List ID: " + newTaskListId);
@@ -229,19 +238,17 @@ public class TaskListActivity extends AppCompatActivity
             Log.d("TaskListActivity", "Current Task List ID set to: " + currentTaskListId);
 
             loadAndDisplayTasks(currentTaskListId);
-            // Aggiorna il fragment TaskDetailFragment se si è in modalità tablet
+            // Update TaskDetailFragment if in tablet mode
             if (tabletMode && taskDetailFragment != null) {
                 taskDetailFragment.updateTaskListId(currentTaskListId);
                 taskDetailFragment.displayTask(null);
             }
-            loadAndDisplayTasks(currentTaskListId);
-
         }
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
-    private void showCreateTaskListDialog() {
+    public void showCreateTaskListDialog(OnTaskListCreatedListener listener) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Create Task List");
 
@@ -249,12 +256,12 @@ public class TaskListActivity extends AppCompatActivity
         input.setInputType(InputType.TYPE_CLASS_TEXT);
         builder.setView(input);
 
-        builder.setPositiveButton("OK", (dialog, which) -> handleNewTaskListCreation(input.getText().toString().trim()));
+        builder.setPositiveButton("OK", (dialog, which) -> handleNewTaskListCreation(input.getText().toString().trim(), listener));
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
         builder.show();
     }
 
-    private void handleNewTaskListCreation(String newTaskListName) {
+    private void handleNewTaskListCreation(String newTaskListName, OnTaskListCreatedListener listener) {
         if (!newTaskListName.isEmpty()) {
             TaskList newTaskList = new TaskList(newTaskListName);
             taskViewModel.insertTaskList(newTaskList);
@@ -262,17 +269,20 @@ public class TaskListActivity extends AppCompatActivity
             taskViewModel.getAllTaskLists().observe(this, taskLists -> {
                 for (TaskList taskList : taskLists) {
                     if (taskList.getName().equals(newTaskListName)) {
-                        currentTaskListId = taskList.getId();
-                        Log.d("TaskListActivity", "New Task List created with ID: " + currentTaskListId);
+                        int newTaskListId = taskList.getId();
+                        Log.d("TaskListActivity", "New Task List created with ID: " + newTaskListId);
+                        listener.onTaskListCreated(newTaskListId);
                         break;
                     }
                 }
-                loadAndDisplayTasks(currentTaskListId);
-                updateActionBarTitle(currentTaskListId);
             });
         } else {
             showErrorForTaskListCreation(newTaskListName);
         }
+    }
+
+    interface OnTaskListCreatedListener {
+        void onTaskListCreated(int taskListId);
     }
 
     private void showErrorForTaskListCreation(String taskListName) {
