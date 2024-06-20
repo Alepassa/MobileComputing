@@ -22,6 +22,8 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.myapplicationtask.databinding.ActivityMainBinding;
 
 public class TaskDetail extends AppCompatActivity {
+    ///
+    //
     public static final String TASK_EXTRA = "TASK_EXTRA";
     private ActivityMainBinding binding;
     private TaskDetailFragment taskDetailFragment;
