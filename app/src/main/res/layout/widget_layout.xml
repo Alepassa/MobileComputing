@@ -30,9 +30,6 @@
             android:id="@+id/add_task_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:clickable="true"
-            android:contentDescription="Add Task"
-            android:focusable="true"
             android:padding="6dp"
             android:src="@drawable/add" />
     </LinearLayout>

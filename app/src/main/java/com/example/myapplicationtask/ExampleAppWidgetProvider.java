@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
+import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 import androidx.lifecycle.LiveData;
@@ -24,6 +25,7 @@ public class ExampleAppWidgetProvider extends AppWidgetProvider {
     public static final String EXTRA_TASK_ID = "EXTRA_TASK_ID";
 
     public static final String TOAST_ACTION = "TOAST_ACTION";
+    private static final String ADD_TASK_ACTION = "ADD_TASK_ACTION";
 
     private static TaskRepositoryDatabaseImpl repository;
     private static ExecutorService executor;
@@ -36,7 +38,6 @@ public class ExampleAppWidgetProvider extends AppWidgetProvider {
             Application application = (Application) context.getApplicationContext();
             repository = new TaskRepositoryDatabaseImpl(application);
             executor = Executors.newSingleThreadExecutor();
-
         }
 
         for (int appWidgetId : appWidgetIds) {
@@ -56,6 +57,12 @@ public class ExampleAppWidgetProvider extends AppWidgetProvider {
             PendingIntent toastPendingIntent = PendingIntent.getBroadcast(context, 0, toastIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
             views.setPendingIntentTemplate(R.id.widget_task_list, toastPendingIntent);
 
+            Intent addTaskIntent = new Intent(context, ExampleAppWidgetProvider.class);
+            addTaskIntent.setAction(ExampleAppWidgetProvider.ADD_TASK_ACTION);
+            PendingIntent addTaskPendingIntent = PendingIntent.getBroadcast(context, 0, addTaskIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+            views.setOnClickPendingIntent(R.id.add_task_button, addTaskPendingIntent);
+
+
             // imposta la vista vuota nel caso in cui non ci siano dati
             views.setEmptyView(R.id.widget_task_list, R.id.widget_empty_view);
 
@@ -66,6 +73,20 @@ public class ExampleAppWidgetProvider extends AppWidgetProvider {
     @Override
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
+
+        if (repository == null) {
+            Application application = (Application) context.getApplicationContext();
+            repository = new TaskRepositoryDatabaseImpl(application);
+        }
+        if (executor == null) {
+            executor = Executors.newSingleThreadExecutor();
+        }
+
+        if (ADD_TASK_ACTION.equals(intent.getAction())) {
+            Log.d("ExampleAppWidgetProvider", "Add Task Button Clicked");
+            showAddTaskDialog(context);
+        }
+
         if (TOAST_ACTION.equals(intent.getAction())) {
             int appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
             int taskId = intent.getIntExtra(EXTRA_TASK_ID, -1);
@@ -85,9 +106,18 @@ public class ExampleAppWidgetProvider extends AppWidgetProvider {
             } else {
                 Log.e("ExampleAppWidgetProvider", "Task ID or repository is null.");
             }
-
         }
     }
+
+    private void showAddTaskDialog(Context context) {
+        Log.d("ExampleAppWidgetProvider", "Opening Add Task Dialog");
+        Intent dialogIntent = new Intent(context, TaskDetail.class);
+        dialogIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        dialogIntent.putExtra("taskListId", 16); //tasklistid che stiamo considerando
+        context.startActivity(dialogIntent);
+    }
+
+
     @Override
     public void onDeleted(Context context, int[] appWidgetIds) {
         super.onDeleted(context, appWidgetIds);
