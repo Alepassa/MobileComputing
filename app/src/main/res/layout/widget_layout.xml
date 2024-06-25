@@ -32,6 +32,22 @@
             android:layout_height="wrap_content"
             android:padding="6dp"
             android:src="@drawable/add" />
+
+
+        <ImageView
+            android:id="@+id/next_category"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="6dp"
+            android:src="@drawable/baseline_keyboard_arrow_right_24" />
+
+        <ImageView
+            android:id="@+id/last_category"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="6dp"
+            android:src="@drawable/baseline_keyboard_arrow_left_24" />
+
     </LinearLayout>
 
     <!-- ListView for displaying tasks -->

@@ -28,4 +28,6 @@ public interface TaskListDao {
     @Query("SELECT name FROM task_list_table WHERE id = :taskListId")
     String getTaskListNameByIdSync(int taskListId);
 
+    @Query("SELECT id FROM task_list_table LIMIT 1")
+    int getFirstTaskListId();
 }

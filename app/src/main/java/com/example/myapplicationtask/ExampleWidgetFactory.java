@@ -112,7 +112,8 @@ public class ExampleWidgetFactory implements RemoteViewsService.RemoteViewsFacto
     private void fetchData() {
         new Thread(() -> {
             try {
-                int taskListId = 16;
+                int taskListId = ExampleAppWidgetProvider.getCurrentTaskListId();
+
                 List<Task> tasks = repository.getTasksByTaskListIdSync(taskListId);
                 listName = repository.getTaskListNameByIdSync(taskListId);
                 Log.d(TAG, "List Name " + listName);

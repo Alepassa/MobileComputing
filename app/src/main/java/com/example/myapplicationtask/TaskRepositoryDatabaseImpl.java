@@ -143,6 +143,12 @@ public class TaskRepositoryDatabaseImpl implements TaskRepository {
         return taskDao.getTasksByTaskListIdSync(taskListId);
     }
 
+
+    public int getFirstTaskListId() {
+        return taskListDao.getFirstTaskListId();
+    }
+
+
     private void notifyWidgetDataChanged() {
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
         int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(context, ExampleAppWidgetProvider.class));

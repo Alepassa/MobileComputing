@@ -24,5 +24,5 @@ public interface TaskRepository {
      String getTaskListNameByIdSync(int taskListId);
     List<Task> getTasksByTaskListIdSync(int taskListId);
 
-
+    int getFirstTaskListId();
 }
