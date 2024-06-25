@@ -28,4 +28,5 @@
     <style name="CustomToolbarTheme" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
         <item name="android:textColorPrimary">@color/white</item>
     </style>
+
 </resources>

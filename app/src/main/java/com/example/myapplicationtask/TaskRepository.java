@@ -20,4 +20,9 @@ public interface TaskRepository {
     void deleteTaskListById(int taskListId);
 
     void deleteTaskById(int taskId);
+
+     String getTaskListNameByIdSync(int taskListId);
+    List<Task> getTasksByTaskListIdSync(int taskListId);
+
+
 }

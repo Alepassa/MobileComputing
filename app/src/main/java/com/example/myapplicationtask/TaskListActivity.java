@@ -380,7 +380,6 @@ public class TaskListActivity extends AppCompatActivity
                 currentTaskListId = firstTaskList.getId();
 
                 loadAndDisplayTasks(currentTaskListId);
-                updateActionBarTitle(currentTaskListId);
             }
         });
     }
@@ -398,7 +397,6 @@ public class TaskListActivity extends AppCompatActivity
                 .setPositiveButton(android.R.string.yes, (dialog, which) -> {
                     taskViewModel.deleteTaskListById(currentTaskListId);
                     currentTaskListId = -1;
-                    updateActionBarTitle(currentTaskListId);
                     loadAndDisplayTasks(currentTaskListId);
                 })
                 .setNegativeButton(android.R.string.no, null)

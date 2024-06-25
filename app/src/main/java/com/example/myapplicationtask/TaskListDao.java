@@ -24,4 +24,8 @@ public interface TaskListDao {
     @Query("DELETE FROM task_list_table WHERE id = :taskListId")
     void deleteTaskListById(int taskListId);
 
+    // Metodo per ottenere il nome della lista in modo sincrono
+    @Query("SELECT name FROM task_list_table WHERE id = :taskListId")
+    String getTaskListNameByIdSync(int taskListId);
+
 }

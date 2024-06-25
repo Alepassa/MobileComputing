@@ -35,4 +35,7 @@ public interface TaskDao {
 
     @Query("DELETE FROM task_table WHERE mDone = 1 AND taskListId = :taskListId")
     void deleteCompletedTasksByTaskListId(int taskListId);
+
+    @Query("SELECT * FROM task_table WHERE taskListId = :taskListId ORDER BY mId ASC")
+    List<Task> getTasksByTaskListIdSync(int taskListId);
 }
