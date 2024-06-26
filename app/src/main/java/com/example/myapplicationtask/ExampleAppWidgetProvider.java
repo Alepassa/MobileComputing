@@ -24,6 +24,8 @@ import java.util.concurrent.Executors;
 public class ExampleAppWidgetProvider extends AppWidgetProvider {
 
     public static final String EXTRA_ITEM = "EXTRA_ITEM";
+
+    public static final String EXTRA_CATEGORY_NAME = "EXTRA_CATEGORY_NAME";
     public static final String EXTRA_TASK_ID = "EXTRA_TASK_ID";
 
     public static final String TOAST_ACTION = "TOAST_ACTION";
@@ -85,9 +87,19 @@ public class ExampleAppWidgetProvider extends AppWidgetProvider {
             // imposta la vista vuota nel caso in cui non ci siano dati
             views.setEmptyView(R.id.widget_task_list, R.id.widget_empty_view);
 
+
+
+
+            // Update the widget
             appWidgetManager.updateAppWidget(appWidgetId, views);
+
+            appWidgetManager.updateAppWidget(appWidgetId, views);
+
+
         }
     }
+
+
 
     @Override
     public void onReceive(Context context, Intent intent) {

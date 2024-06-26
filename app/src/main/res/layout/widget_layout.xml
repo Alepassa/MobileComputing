@@ -1,8 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/purple_200">
+    android:background="?attr/colorPrimaryContainer"
+    android:theme="@style/Theme.Material3.DynamicColors.DayNight">
 
     <!-- Linear layout to hold category_name TextView and add_task_button ImageView -->
     <LinearLayout
@@ -11,10 +14,6 @@
         android:orientation="horizontal">
 
         <!-- TextView for displaying category name -->
-
-        <!-- ImageView for adding tasks -->
-        <!-- ImageView for adding tasks -->
-
         <TextView
             android:id="@+id/category_name"
             android:layout_width="100dp"
@@ -22,7 +21,7 @@
             android:layout_marginStart="5dp"
             android:layout_marginTop="10dp"
             android:text="Category Name"
-            android:textColor="@color/black"
+            android:textColor="?attr/colorOnPrimaryContainer"
             android:textSize="12sp" />
 
         <!-- ImageView for adding tasks -->
@@ -31,23 +30,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="6dp"
-            android:src="@drawable/add" />
-
+            android:src="@drawable/add"
+            app:tint="?attr/colorPrimary" />
 
         <ImageView
             android:id="@+id/next_category"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="6dp"
-            android:src="@drawable/baseline_keyboard_arrow_right_24" />
+            android:src="@drawable/baseline_keyboard_arrow_right_24"
+            app:tint="?attr/colorPrimary" />
 
         <ImageView
             android:id="@+id/last_category"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="6dp"
-            android:src="@drawable/baseline_keyboard_arrow_left_24" />
-
+            android:src="@drawable/baseline_keyboard_arrow_left_24"
+            app:tint="?attr/colorPrimary" />
     </LinearLayout>
 
     <!-- ListView for displaying tasks -->
