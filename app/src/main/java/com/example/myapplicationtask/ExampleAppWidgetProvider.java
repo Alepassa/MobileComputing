@@ -1,4 +1,5 @@
 package com.example.myapplicationtask;
+
 import android.app.Application;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -7,37 +8,30 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Handler;
-import android.os.Looper;
+import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
+import android.util.SizeF;
 import android.widget.RemoteViews;
 import android.widget.Toast;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
-import java.util.List;
-import java.util.concurrent.Executor;
+
+
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
+import androidx.collection.ArrayMap;
 
 public class ExampleAppWidgetProvider extends AppWidgetProvider {
 
     public static final String EXTRA_ITEM = "EXTRA_ITEM";
-
-    public static final String EXTRA_CATEGORY_NAME = "EXTRA_CATEGORY_NAME";
     public static final String EXTRA_TASK_ID = "EXTRA_TASK_ID";
-
     public static final String TOAST_ACTION = "TOAST_ACTION";
     private static final String ADD_TASK_ACTION = "ADD_TASK_ACTION";
-    private static final String CATEGORY_CLICK_ACTION = "CATEGORY_CLICK_ACTION" ;
+    private static final String CATEGORY_CLICK_ACTION = "CATEGORY_CLICK_ACTION";
     private static final String CATEGORY_CLICK_ACTION_LEFT = "CATEGORY_CLICK_ACTION_LEFT";
 
     private static TaskRepositoryDatabaseImpl repository;
     private static ExecutorService executor;
     private static int currentTaskListId = 1;
-
-
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
@@ -50,56 +44,73 @@ public class ExampleAppWidgetProvider extends AppWidgetProvider {
         }
 
         for (int appWidgetId : appWidgetIds) {
-            RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
-
-            // Intent per il servizio che fornisce i dati al widget
-            Intent serviceIntent = new Intent(context, ExampleWidgetService.class);
-            serviceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-            serviceIntent.setData(Uri.parse(serviceIntent.toUri(Intent.URI_INTENT_SCHEME)));
-            views.setRemoteAdapter(R.id.widget_task_list, serviceIntent);
-
-            // Intent per gestire l'azione di clic sugli elementi del widget
-            Intent toastIntent = new Intent(context, ExampleAppWidgetProvider.class);
-            toastIntent.setAction(ExampleAppWidgetProvider.TOAST_ACTION);
-            toastIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-            toastIntent.setData(Uri.parse(toastIntent.toUri(Intent.URI_INTENT_SCHEME)));
-            PendingIntent toastPendingIntent = PendingIntent.getBroadcast(context, 0, toastIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
-            views.setPendingIntentTemplate(R.id.widget_task_list, toastPendingIntent);
-
-            Intent addTaskIntent = new Intent(context, ExampleAppWidgetProvider.class);
-            addTaskIntent.setAction(ExampleAppWidgetProvider.ADD_TASK_ACTION);
-            PendingIntent addTaskPendingIntent = PendingIntent.getBroadcast(context, 0, addTaskIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-            views.setOnClickPendingIntent(R.id.add_task_button, addTaskPendingIntent);
-
-            // Intent per gestire l'azione di clic sul nome della categoria
-            Intent categoryIntent = new Intent(context, ExampleAppWidgetProvider.class);
-            categoryIntent.setAction(ExampleAppWidgetProvider.CATEGORY_CLICK_ACTION);
-            PendingIntent categoryPendingIntent = PendingIntent.getBroadcast(context, 0, categoryIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-            views.setOnClickPendingIntent(R.id.next_category, categoryPendingIntent);
-
-
-            Intent categoryIntentLeft = new Intent(context, ExampleAppWidgetProvider.class);
-            categoryIntentLeft.setAction(ExampleAppWidgetProvider.CATEGORY_CLICK_ACTION_LEFT);
-            PendingIntent categoryPendingIntentLeft = PendingIntent.getBroadcast(context, 0, categoryIntentLeft, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-            views.setOnClickPendingIntent(R.id.last_category, categoryPendingIntentLeft);
-
-
-            // imposta la vista vuota nel caso in cui non ci siano dati
-            views.setEmptyView(R.id.widget_task_list, R.id.widget_empty_view);
-
-
-
-
-            // Update the widget
-            appWidgetManager.updateAppWidget(appWidgetId, views);
-
-            appWidgetManager.updateAppWidget(appWidgetId, views);
-
-
+            updateAppWidget(context, appWidgetManager, appWidgetId);
         }
     }
 
+    @Override
+    public void onAppWidgetOptionsChanged(Context context, AppWidgetManager appWidgetManager, int appWidgetId, Bundle newOptions) {
+        super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions);
+        updateAppWidget(context, appWidgetManager, appWidgetId);
+    }
 
+    private void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
+        Bundle options = appWidgetManager.getAppWidgetOptions(appWidgetId);
+        int minWidth = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
+        int minHeight = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT);
+
+        RemoteViews smallView = new RemoteViews(context.getPackageName(), R.layout.widget_layout_small);
+        RemoteViews mediumView = new RemoteViews(context.getPackageName(), R.layout.widget_layout_medium);
+        RemoteViews largeView = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
+
+        Map<SizeF, RemoteViews> viewMapping = new ArrayMap<>();
+        viewMapping.put(new SizeF(40f, 40f), smallView);
+        viewMapping.put(new SizeF(110f, 110f), mediumView);
+        viewMapping.put(new SizeF(250f, 250f), largeView);
+
+        RemoteViews remoteViews = null;
+        for (SizeF size : viewMapping.keySet()) {
+            if (minWidth <= size.getWidth() && minHeight <= size.getHeight()) {
+                remoteViews = viewMapping.get(size);
+                break;
+            }
+        }
+
+        if (remoteViews == null) {
+            remoteViews = mediumView; // Default to medium view if no match
+        }
+
+        Intent serviceIntent = new Intent(context, ExampleWidgetService.class);
+        serviceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        serviceIntent.setData(Uri.parse(serviceIntent.toUri(Intent.URI_INTENT_SCHEME)));
+        remoteViews.setRemoteAdapter(R.id.widget_task_list, serviceIntent);
+
+        Intent toastIntent = new Intent(context, ExampleAppWidgetProvider.class);
+        toastIntent.setAction(ExampleAppWidgetProvider.TOAST_ACTION);
+        toastIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        toastIntent.setData(Uri.parse(toastIntent.toUri(Intent.URI_INTENT_SCHEME)));
+        PendingIntent toastPendingIntent = PendingIntent.getBroadcast(context, 0, toastIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
+        remoteViews.setPendingIntentTemplate(R.id.widget_task_list, toastPendingIntent);
+
+        Intent addTaskIntent = new Intent(context, ExampleAppWidgetProvider.class);
+        addTaskIntent.setAction(ExampleAppWidgetProvider.ADD_TASK_ACTION);
+        PendingIntent addTaskPendingIntent = PendingIntent.getBroadcast(context, 0, addTaskIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        remoteViews.setOnClickPendingIntent(R.id.add_task_button, addTaskPendingIntent);
+
+        Intent categoryIntent = new Intent(context, ExampleAppWidgetProvider.class);
+        categoryIntent.setAction(ExampleAppWidgetProvider.CATEGORY_CLICK_ACTION);
+        PendingIntent categoryPendingIntent = PendingIntent.getBroadcast(context, 0, categoryIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        remoteViews.setOnClickPendingIntent(R.id.next_category, categoryPendingIntent);
+
+        Intent categoryIntentLeft = new Intent(context, ExampleAppWidgetProvider.class);
+        categoryIntentLeft.setAction(ExampleAppWidgetProvider.CATEGORY_CLICK_ACTION_LEFT);
+        PendingIntent categoryPendingIntentLeft = PendingIntent.getBroadcast(context, 0, categoryIntentLeft, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        remoteViews.setOnClickPendingIntent(R.id.last_category, categoryPendingIntentLeft);
+
+        remoteViews.setEmptyView(R.id.widget_task_list, R.id.widget_empty_view);
+
+        appWidgetManager.updateAppWidget(appWidgetId, remoteViews);
+    }
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -120,7 +131,7 @@ public class ExampleAppWidgetProvider extends AppWidgetProvider {
 
         if (CATEGORY_CLICK_ACTION.equals(intent.getAction())) {
             Log.d("ExampleAppWidgetProvider", "Category Name Clicked");
-            currentTaskListId++; // Incrementa il taskListId
+            currentTaskListId++;
             Log.d("ExampleAppWidgetProvider", "Updated currentTaskListId: " + currentTaskListId);
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
             int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(context, ExampleAppWidgetProvider.class));
@@ -129,13 +140,12 @@ public class ExampleAppWidgetProvider extends AppWidgetProvider {
 
         if (CATEGORY_CLICK_ACTION_LEFT.equals(intent.getAction())) {
             Log.d("ExampleAppWidgetProvider", "Category Name Clicked");
-            currentTaskListId--; // Incrementa il taskListId
+            currentTaskListId--;
             Log.d("ExampleAppWidgetProvider", "Updated currentTaskListId: " + currentTaskListId);
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
             int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(context, ExampleAppWidgetProvider.class));
             appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_task_list);
         }
-
 
         if (TOAST_ACTION.equals(intent.getAction())) {
             int appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
@@ -174,7 +184,6 @@ public class ExampleAppWidgetProvider extends AppWidgetProvider {
     }
 
     public static int getCurrentTaskListId() {
-        return  currentTaskListId;
+        return currentTaskListId;
     }
-
 }

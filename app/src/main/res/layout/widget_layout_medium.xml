@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="?attr/colorPrimaryContainer"
+    android:theme="@style/Theme.Material3.DynamicColors.DayNight">
+
+    <!-- Linear layout to hold category_name TextView and add_task_button ImageView -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <!-- TextView for displaying category name -->
+        <TextView
+            android:id="@+id/category_name"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="10dp"
+            android:text="Category Name"
+            android:textColor="?attr/colorOnPrimaryContainer"
+            android:textSize="12sp" />
+
+        <!-- ImageView for adding tasks -->
+        <ImageView
+            android:id="@+id/add_task_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="6dp"
+            android:src="@drawable/add"
+            app:tint="?attr/colorPrimary" />
+
+    </LinearLayout>
+
+    <!-- ListView for displaying tasks -->
+    <ListView
+        android:id="@+id/widget_task_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@android:color/white" />
+
+    <!-- TextView for displaying empty view when no tasks are available -->
+    <TextView
+        android:id="@+id/widget_empty_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="No tasks available"
+        android:gravity="center"
+        android:visibility="gone" />
+</LinearLayout>

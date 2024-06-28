@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:minWidth="110dp"
     android:minHeight="110dp"
@@ -13,4 +12,10 @@
     android:initialLayout="@layout/widget_layout"
     android:widgetFeatures="reconfigurable|configuration_optional"
     android:description="@string/widget_description">
+
+    <appwidget-options>
+        <appwidget-option android:minResizeWidth="40dp" android:minResizeHeight="40dp" android:layout="@layout/widget_layout_small" />
+        <appwidget-option android:minResizeWidth="110dp" android:minResizeHeight="110dp" android:layout="@layout/widget_layout_medium" />
+        <appwidget-option android:minResizeWidth="250dp" android:minResizeHeight="250dp" android:layout="@layout/widget_layout" />
+    </appwidget-options>
 </appwidget-provider>
